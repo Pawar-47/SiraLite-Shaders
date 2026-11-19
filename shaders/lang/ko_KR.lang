@@ -10,6 +10,7 @@ profile.high=높음
 profile.extremeplus=높음 (깊이 감지)
 
 profile.BSL_INSPIRED=BSL 영감
+profile.BSL_MAX=BSL 최대
 profile.comment="그림자 없음" 프로필은 저성능 기계를 위해 설계되었으며, 그림자를 무시합니다. 전통적인 프로필은 천천히 더 높은 품질의 그림자와 더 고급스러운 무거운 효과를 추가합니다. 사용 가능한 옵션을 실험해보고 가장 적합한 조합을 찾으십시오.
 
 #정보

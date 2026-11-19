@@ -10,6 +10,7 @@ profile.high=高
 profile.extremeplus=高 (景深)
 
 profile.BSL_INSPIRED=BSL 灵感
+profile.BSL_MAX=BSL 极限
 profile.comment=“无阴影”配置文件是为低性能电脑设计的，不渲染阴影。 常规的配置文件会逐渐添加更高质量的阴影、更多高级的重量级效果。 请体验现有的选项，找到最适合你的配置组合。
 
 #About

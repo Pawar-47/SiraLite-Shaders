@@ -40,7 +40,10 @@ was changed and when:
    `BSL_INSPIRED`, which switches every effect the tuned defaults leave off back on
    at once, plus a label for it in each of the nine shipped languages. The pack's
    own profiles and its option code are untouched.
-4. Nothing else. No shader logic was rewritten, no file was removed, and no
+4. `shaders/shaders.properties` and `shaders/lang/*.lang` (2.2.0) - a fourth
+   profile, `BSL_MAX`, which sets every option this pack implements to the highest
+   value its own list allows, plus its label in the nine languages.
+5. Nothing else. No shader logic was rewritten, no file was removed, and no
    texture was altered.
 
 The unmodified upstream copy this was taken from is kept in `Ref/` for comparison,

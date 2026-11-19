@@ -21,12 +21,12 @@ date, as the LGPL requires. [CREDITS.md](CREDITS.md) says who made what.
 
 MakeUp's complete pack - every program, every per-dimension folder, its clouds,
 water, reflections, TAA, glow and texture sets - with its defaults retuned for
-weak hardware, plus three profiles for the same purpose. Nothing was stubbed,
+weak hardware, plus four profiles for the same purpose. Nothing was stubbed,
 deleted or rewritten:
 
 - The shader logic is upstream's, unchanged.
 - What changed is `shaders/lib/config.glsl` (default values) and
-  `shaders/shaders.properties` (three profiles, and two passes made conditional).
+  `shaders/shaders.properties` (four profiles, and two passes made conditional).
 - `Ref/` keeps the copy of MakeUp the tuning was done against. Only
   [Ref/OPTIMIZED.md](Ref/OPTIMIZED.md) and the two files that set the values
   (`Ref/shaders/shaders.properties`, `Ref/shaders/lib/config.glsl`) are tracked, so
@@ -70,6 +70,12 @@ Three profiles are added above MakeUp's own ladder:
   BSL-style look in one click, tuned to survive on a mid-range GPU - reflection
   raymarching is deliberately left off. On integrated graphics expect a real
   framerate drop; that is what the default profile is for.
+- **`BSL_MAX`** - the ceiling. Everything the previous profile has, at the highest
+  values this pack's own options allow: shadows at 4080² over 255 blocks,
+  raymarched screen-space reflections, dynamic volumetric clouds, true volumetric
+  light, TAA+FXAA, AO at 8 samples, 5-sample-pair bloom. It changes no colour
+  grade. This is for screenshots or a discrete GPU - an integrated one will not
+  hold a playable framerate.
 
 MakeUp's own profiles are untouched and still available from the profile menu:
 *No effects*, *Shadowless Low / Medium / High*, *Low*, *Medium*, *High* and
@@ -104,9 +110,16 @@ Three shortcuts if you would rather not go switch by switch:
   and gloss - at MakeUp's maximum shadow resolution and distance.
 - **`BSL_INSPIRED`** is the same full look tuned to survive on weaker hardware:
   the effects above at 840² of shadow map over 105 blocks, with a warm grade.
+- **`BSL_MAX`** is the same effects at the maximum values in the pack's option
+  list: 4080² over 255 blocks, raymarched reflections, dynamic clouds.
 
 If you try only one thing, make it step 2. Clouds and sky are what the eye reads as
 "a shader is running", and they cost less than shadows.
+
+This section covers the effects this pack implements. For the other half of the
+picture - a file-by-file comparison against BSL's own tree, what has no equivalent
+here, and what each missing feature would cost to build - see
+[docs/FEATURE-PARITY.md](docs/FEATURE-PARITY.md).
 
 ## Install
 
@@ -115,7 +128,7 @@ If you try only one thing, make it step 2. Clouds and sky are what the eye reads
 1. Install **Fabric** for Minecraft **1.21.5** from the launcher's version manager.
 2. Put **Iris** (and **Sodium**) into that profile's `mods` folder, matching 1.21.5.
 3. Start the game once, then close it.
-4. Copy `siralite-shaders-2.1.0-shaderpack.zip` into `<game directory>/shaderpacks/`.
+4. Copy `siralite-shaders-2.2.0-shaderpack.zip` into `<game directory>/shaderpacks/`.
    Do not unzip it.
 5. Start the game, then **Options > Video Settings > Shader Packs**, select the
    pack and apply it. Open its settings and check the profile reads **MAX_FPS**.

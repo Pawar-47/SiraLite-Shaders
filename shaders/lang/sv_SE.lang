@@ -10,6 +10,7 @@ profile.high=Hög
 profile.extremeplus=Hög (Skärpedjup)
 
 profile.BSL_INSPIRED=BSL-inspirerad
+profile.BSL_MAX=BSL max
 profile.comment=De "skugglösa" profilerna är designade för datorer med låg prestanda, vilket inaktiverar skuggor. Traditionella profiler lägger långsamt till skuggor med högre kvalitet och mer avancerade tunga effekter. Var god experimentera med de tillgängliga alternativen och hitta den bästa kombinationen för dig.
 
 #About

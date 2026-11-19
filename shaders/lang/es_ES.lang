@@ -10,6 +10,7 @@ profile.high=Alto
 profile.extremeplus=Alto (DoF)
 
 profile.BSL_INSPIRED=Inspirado en BSL
+profile.BSL_MAX=BSL Máximo
 profile.comment=Los perfiles "sin sombras" están pensados para máquinas de bajo rendimiento, sin considerar las sombras. Los perfiles tradicionales van agregando sombras de mejor calidad y efectos más avanzados y pesados. Probá las opciones disponibles y encontrá la combinación que mejor te funcione.
 
 # Acerca de
