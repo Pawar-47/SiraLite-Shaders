@@ -19,7 +19,8 @@ project skeleton. See [CREDITS.md](CREDITS.md) for exactly what came from where.
 | Question | Answer |
 | --- | --- |
 | Is this a real, complete shader pack? | Yes. Every program the pack ships is implemented; there are no stubs and no placeholder code. |
-| Has it been compiled and run in Minecraft? | **No.** It was written in an environment with no GPU, no Minecraft and no Java toolchain. The build and a set of structural source checks run in CI; see [Verification](#verification). |
+| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, and uploads `siralite-shaders-1.0.0-shaderpack.zip` as an artifact. The current commit is green. See [Verification](#verification). |
+| Has it been compiled and run in Minecraft? | **No.** It was written in an environment with no GPU and no Minecraft. Packaging is verified; GPU compilation and appearance are not. |
 | Are there FPS numbers? | **No, and there will not be any invented ones.** Everything below labelled as an optimisation is a code-level property you can check by reading the file, not a measurement. |
 | Is it tested on your Core i3? | Not yet. That test is the next step, and it is yours to run. |
 
@@ -356,10 +357,12 @@ CI (`.github/workflows/build.yml`) runs on every push:
    balanced braces and parentheses, `RENDERTARGETS` present, every fragment
    shader input matched by a vertex shader output, every `#include` resolvable,
    no option defined twice with different values.
-2. `./gradlew assemble` and the produced zip is uploaded as an artifact.
+2. `./gradlew assemble`, and the produced `build/releases/*.zip` is uploaded as an
+   artifact (the step fails the build if no zip is produced).
 
-That proves the sources are structurally sound and that the pack packages
-correctly. It does **not** prove the shaders compile on a GPU or that they look
+Both steps pass on the current commit. That proves the sources are structurally
+sound and that the pack packages correctly - you can download the release zip from
+the Actions run instead of building it yourself. It does **not** prove the shaders compile on a GPU or that they look
 right; only a real client can. Check the console for `[Iris]` compile errors after
 applying the pack.
 
