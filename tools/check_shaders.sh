@@ -44,8 +44,11 @@ done
 
 # 3. Preprocessor conditionals must balance in every source file. A missing
 #    #endif is the most common way an edit silently breaks a whole program.
+#    Upstream ships a mix of LF and CRLF files, so trailing \r is stripped
+#    before comparing: "#endif\r" is not "#endif".
 for f in $sources; do
 	if ! awk -v file="$f" '
+		{ sub(/\r$/, "") }
 		/^[[:space:]]*#/ {
 			if ($1 == "#if" || $1 == "#ifdef" || $1 == "#ifndef") depth++
 			else if ($1 == "#endif") depth--
