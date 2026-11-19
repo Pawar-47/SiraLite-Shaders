@@ -1,0 +1,55 @@
+profile.comment=Ultra Performance (default) / Balanced / Visual Performance. Pick the preset that fits your PC, then fine tune below.
+
+screen.LIGHTING=Lighting and Colour
+screen.ATMOSPHERE=Atmosphere
+screen.WATER=Water
+screen.SHADOWS=Shadows
+screen.POST=Post Processing
+
+option.SHADOW_QUALITY=Shadow Quality
+option.SHADOW_QUALITY.comment=Off skips the shadow pass completely, which is the single biggest win on integrated graphics. Hard is one tap per pixel, Soft averages four.
+value.SHADOW_QUALITY.0=Off
+value.SHADOW_QUALITY.1=Hard
+value.SHADOW_QUALITY.2=Soft
+
+option.shadowMapResolution=Shadow Resolution
+option.shadowMapResolution.comment=Lower is faster and blurrier. 1024 is the recommended low-end value.
+
+option.SHADOW_STRENGTH=Shadow Strength
+option.SHADOW_STRENGTH.comment=How much direct sunlight the shadows remove. They only apply where sky light reaches, so interiors and caves are unaffected.
+
+option.EXPOSURE=Brightness
+option.EXPOSURE.comment=Overall brightness multiplier, applied after lighting.
+
+option.SATURATION=Saturation
+option.SATURATION.comment=Colour saturation around the brightness of each pixel.
+
+option.CONTRAST=Contrast
+option.CONTRAST.comment=Contrast around mid grey.
+
+option.SUNSET_STRENGTH=Sunset Warmth
+option.SUNSET_STRENGTH.comment=How warm sunrise and sunset colours are, in the sky, the fog and the light tint.
+
+option.NIGHT_BRIGHTNESS=Night Brightness
+option.NIGHT_BRIGHTNESS.comment=Light level of moonlit and unlit areas after dark.
+
+option.FOG_DENSITY=Fog Density
+option.FOG_DENSITY.comment=Higher pulls the distance fog closer, lower pushes it away.
+
+option.WATER_REFLECTIONS=Water Reflections
+option.WATER_REFLECTIONS.comment=Sky colour reflected on water, weighted by viewing angle. Arithmetic only, no extra texture fetches.
+
+option.WATER_REFLECTION_STRENGTH=Reflection Strength
+option.WATER_REFLECTION_STRENGTH.comment=How much of the sky is mixed into the water surface.
+
+option.WATER_WAVES=Water Waves
+option.WATER_WAVES.comment=Animated shimmer on the reflected direction. Adds four sin or cos per water pixel.
+
+option.BLOOM=Bloom
+option.BLOOM.comment=Bright pass glow. Four extra fetches of the scene buffer at full resolution.
+
+option.VIGNETTE=Vignette
+option.VIGNETTE.comment=Darkens the corners of the screen.
+
+option.SSAO=Ambient Occlusion
+option.SSAO.comment=Depth only contact shadows in grooves and corners. Four extra depth fetches and five depth linearisations per pixel.

@@ -2,9 +2,18 @@
 
 out vec2 lmcoord;
 out vec4 glcolor;
+out vec3 viewPos;
+out vec3 normalView;
 
 void main() {
-	gl_Position = ftransform();
+	vec4 viewPosition = gl_ModelViewMatrix * gl_Vertex;
+	gl_Position = gl_ProjectionMatrix * viewPosition;
+	viewPos = viewPosition.xyz;
+
 	lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	glcolor = gl_Color;
+
+	vec3 n = gl_NormalMatrix * gl_Normal;
+	float len = length(n);
+	normalView = (len > 1e-5) ? (n / len) : vec3(0.0);
 }
