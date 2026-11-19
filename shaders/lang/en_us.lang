@@ -26,6 +26,18 @@ option.WAVE_STRENGTH.comment=How far vegetation and water travel. Does not chang
 option.UNDERWATER_CAUSTICS=Underwater Caustics
 option.UNDERWATER_CAUSTICS.comment=Animated light ripples on everything while the camera is underwater. Free above water, two sine calls below it.
 
+option.HANDHELD_LIGHT=Handheld Light
+option.HANDHELD_LIGHT.comment=A torch or lantern in your hand lights the ground around you, which is what makes a torch useful while mining. Carrying nothing costs one comparison.
+
+option.DIMENSION_TUNING=Dimension Tuning
+option.DIMENSION_TUNING.comment=Warm the light and thicken the fog in the Nether, cool the light and clear the fog in the End.
+
+option.shadowIntervalSize=Shadow Interval
+option.shadowIntervalSize.comment=Higher values soften the banding that a 1024 shadow map shows on long shadows.
+
+option.entityShadowDistanceMul=Entity Shadow Distance
+option.entityShadowDistanceMul.comment=How far away entities still cast shadows, as a fraction of the shadow distance. Lower means much less entity geometry in the shadow pass.
+
 option.SHADOW_QUALITY=Shadow Quality
 option.SHADOW_QUALITY.comment=Off skips the shadow pass completely, which is the single biggest win on integrated graphics. Hard is one tap per pixel, Soft averages four.
 value.SHADOW_QUALITY.0=Off

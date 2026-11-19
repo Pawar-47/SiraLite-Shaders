@@ -19,7 +19,7 @@ project skeleton. See [CREDITS.md](CREDITS.md) for exactly what came from where.
 | Question | Answer |
 | --- | --- |
 | Is this a real, complete shader pack? | Yes. Every program the pack ships is implemented; there are no stubs and no placeholder code. |
-| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, publishes `siralite-shaders-1.3.0-shaderpack.zip` as a **GitHub release**, and attaches the same zip to the workflow run. See [Verification](#verification). |
+| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, publishes `siralite-shaders-1.4.0-shaderpack.zip` as a **GitHub release**, and attaches the same zip to the workflow run. Releases are additive: earlier versions stay published. See [Verification](#verification). |
 | Has it been compiled and run in Minecraft? | **No.** It was written in an environment with no GPU and no Minecraft. Packaging is verified; GPU compilation and appearance are not. |
 | Why is the release zip only about 24 KB? | Because the pack is pure GLSL - about 1,300 lines of source and not one image. See [Why the release is so small](#why-the-release-is-so-small). |
 | Are there FPS numbers? | **No, and there will not be any invented ones.** Everything below labelled as an optimisation is a code-level property you can check by reading the file, not a measurement. |
@@ -194,6 +194,8 @@ Settings** with a label and tooltip from `shaders/lang/en_us.lang`.
 | `SHADOW_QUALITY` | `0` | 0 = off (no shadow pass at all), 1 = hard shadows (one tap), 2 = soft shadows (4 taps) |
 | `shadowMapResolution` | `1024` | 512, 1024 or 2048. Iris constant; lower is faster and blurrier |
 | `shadowDistance` | `96` | Blocks the shadow pass covers. Lower re-renders much less geometry |
+| `shadowIntervalSize` | `7.0` | Softens the banding a low resolution shadow map shows on long shadows |
+| `entityShadowDistanceMul` | `0.25` | How far away entities still cast shadows, as a fraction of the shadow distance |
 | `SHADOW_STRENGTH` | `0.75` | How much direct light the shadows remove |
 | `EXPOSURE` | `1.0` | Overall brightness multiplier, after lighting |
 | `SATURATION` | `1.08` | Colour saturation around each pixel's brightness |
@@ -213,6 +215,8 @@ Settings** with a label and tooltip from `shaders/lang/en_us.lang`.
 | `WATER_WAVES` | off | Animated shimmer of the reflected direction |
 | `WATER_DEPTH` | on | Water colour and opacity follow its depth, plus a shoreline rim |
 | `UNDERWATER_CAUSTICS` | on | Light ripples on everything while submerged |
+| `HANDHELD_LIGHT` | on | A torch or lantern in your hand lights the ground around you |
+| `DIMENSION_TUNING` | on | Warm light and thick haze in the Nether, cool and clear in the End |
 | `BLOOM` | off | Cheap four-tap bright pass |
 | `VIGNETTE` | off | Darkened screen corners |
 | `SSAO` | off | Depth-only contact shadows |
@@ -268,6 +272,26 @@ much shader code weighs.
   resource this pack is trying to protect. A missing texture is a feature here.
 - For comparison, the whole `colortex` budget of this pack is one 8-bit colour
   target. There is nothing else to ship.
+
+## What this pack learned from
+
+The reference library for shader packs is [Modrinth](https://modrinth.com/shaders).
+The design decisions in this pack were checked against openly licensed packs
+published there - **Miniature Shader** (MIT), **MakeUp - Ultra Fast**
+(LGPL-3.0) and **Mellow** (MIT) - and [docs/RESEARCH.md](docs/RESEARCH.md)
+records exactly what was read, what was adopted, what was rejected and why.
+
+Two things worth stating plainly:
+
+- **No third party shader code, and no third party pack zip, is in this
+  repository.** Several of the most downloaded packs on Modrinth are
+  All-Rights-Reserved; committing one here "for reference" would breach its
+  licence. Reference material stays outside the repository and the techniques
+  were rewritten in this project's own code.
+- **The expensive features those packs are known for were rejected on purpose**,
+  not forgotten: screen-space reflections, multiple G-buffer targets, TAA,
+  volumetric clouds, depth of field, motion blur. Each of them costs more per
+  frame than this pack's entire budget on an older i3 with integrated graphics.
 
 ## Performance: what was actually optimised
 

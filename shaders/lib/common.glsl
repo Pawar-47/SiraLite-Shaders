@@ -27,8 +27,26 @@ uniform float viewHeight;
 uniform float frameTimeCounter;
 uniform float rainStrength;
 uniform int isEyeInWater;
+uniform int heldBlockLightValue;
+uniform bool hasSkylight;
+uniform bool hasCeiling;
 uniform float near;
 uniform float far;
+
+/* Which dimension is this? Iris answers directly: the Nether has a ceiling and
+   no sky light, the End has no sky light and no ceiling. Booleans, so each
+   helper is two comparisons and no texture work. */
+float netherAmount() {
+	return (!hasSkylight && hasCeiling) ? 1.0 : 0.0;
+}
+
+float endAmount() {
+	return (!hasSkylight && !hasCeiling) ? 1.0 : 0.0;
+}
+
+float overworldAmount() {
+	return hasSkylight ? 1.0 : 0.0;
+}
 
 float luma(vec3 c) {
 	return dot(c, vec3(0.2125, 0.7154, 0.0721));

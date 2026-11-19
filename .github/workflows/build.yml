@@ -49,6 +49,11 @@ jobs:
 
       # A release needs write access, which a pull request from a fork does not
       # get, so only publish on pushes and manual runs.
+      #
+      # Releases are additive on purpose: a new version creates a new release and
+      # leaves every earlier one, and its downloads, untouched. Nothing here ever
+      # deletes a release or a tag, and no --clobber is used across versions; the
+      # only thing ever replaced is the asset of the same version's own release.
       - name: Publish GitHub release
         if: github.event_name != 'pull_request'
         env:
@@ -57,10 +62,10 @@ jobs:
           version="${{ steps.version.outputs.version }}"
           tag="v$version"
           if gh release view "$tag" >/dev/null 2>&1; then
-            echo "Release $tag exists, replacing its asset."
+            echo "Release $tag exists, replacing its asset (earlier releases are not touched)."
             gh release upload "$tag" build/releases/*.zip --clobber
           else
-            echo "Creating release $tag."
+            echo "Creating release $tag. Existing releases stay published."
             gh release create "$tag" build/releases/*.zip \
               --title "SiraLite Shaders $version" \
               --notes-file docs/RELEASE_NOTES.md

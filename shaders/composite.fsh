@@ -25,8 +25,10 @@ void main() {
 	if (depth < 1.0) {
 		float dist = linearizeDepth(depth);
 
-		// Rain pulls the fog in.
-		float fogScale = FOG_DENSITY * (1.0 + 0.6 * rainStrength);
+		// Rain pulls the fog in, and each dimension has its own air: the Nether
+		// is thick with haze, the End is nearly clear.
+		float dimFog = 1.0 + 1.4 * netherAmount() - 0.35 * endAmount();
+		float fogScale = FOG_DENSITY * (1.0 + 0.6 * rainStrength) * dimFog;
 		float start = far * 0.45 / fogScale;
 		float end = far * 0.98 / fogScale;
 		float fog = clamp((dist - start) / max(end - start, 1.0), 0.0, 1.0);
@@ -70,7 +72,7 @@ void main() {
 	vec2 aspect = vec2(viewWidth / max(viewHeight, 1.0), 1.0);
 	float glareDist = length((texcoord - sunScreen.xy) * aspect);
 	float glare = 1.0 / (1.0 + glareDist * glareDist * 90.0);
-	glare *= sunScreen.z * step(0.9999, depth);
+	glare *= sunScreen.z * step(0.9999, depth) * overworldAmount();
 	glare *= clamp(horizonAmount() * SUNSET_STRENGTH + 0.25, 0.0, 1.0) * daylightAmount();
 	scene += vec3(1.0, 0.72, 0.45) * glare * 0.30;
 #endif

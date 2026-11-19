@@ -23,6 +23,8 @@
 #define SHADOW_QUALITY 0 // [0 1 2] Shadow quality: 0 = off (no shadow pass), 1 = hard shadows, 2 = soft shadows (4 taps)
 const int shadowMapResolution = 1024; // [512 1024 2048] Shadow map resolution. 1024 is the recommended low-end value, 512 the cheapest
 const float shadowDistance = 96.0; // [64 96 128 160] Distance in blocks the shadow pass covers. Lower is much cheaper
+const float shadowIntervalSize = 7.0; // [1.0 3.0 5.0 7.0 9.0 11.0] Shadow interval. Higher values soften the banding of low resolution shadows
+const float entityShadowDistanceMul = 0.25; // [0.125 0.25 0.5 1.0] How far away entities still cast shadows, as a fraction of the shadow distance. Lower is much cheaper
 #define SHADOW_STRENGTH 0.75 // [0.25 0.5 0.75 1.0] How strongly shadows darken the world
 
 /* ------------------------------------------------------------------ *
@@ -71,6 +73,8 @@ const float shadowDistance = 96.0; // [64 96 128 160] Distance in blocks the sha
  * ------------------------------------------------------------------ */
 
 #define UNDERWATER_CAUSTICS // Animated light ripples on everything while the camera is submerged
+#define HANDHELD_LIGHT // A torch or lantern in your hand lights the ground around you
+#define DIMENSION_TUNING // Warm the light and thicken the fog in the Nether, cool it in the End
 
 /* ------------------------------------------------------------------ *
  *  PERFORMANCE

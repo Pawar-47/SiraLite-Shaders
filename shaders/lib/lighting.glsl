@@ -28,7 +28,10 @@ vec3 lightmapLight(vec2 lmcoord) {
 	float day = daylightAmount();
 	float horizon = clamp(horizonAmount() * SUNSET_STRENGTH, 0.0, 1.0);
 
-	vec3 torch = vec3(1.14, 0.82, 0.55);
+	/* Torch light deepens with distance from the source: near a torch the light
+	   is warm white, across the room it is orange. b2 is the block light level
+	   squared, so the shift happens where the light is actually strong. */
+	vec3 torch = mix(vec3(1.22, 0.68, 0.38), vec3(1.08, 0.94, 0.78), b2);
 	vec3 dayTint = mix(vec3(1.0, 1.0, 1.02), vec3(1.10, 0.93, 0.79), horizon);
 	vec3 nightTint = vec3(0.64, 0.76, 1.06) * clamp(NIGHT_BRIGHTNESS, 0.05, 4.0);
 	vec3 skyTint = mix(nightTint, dayTint, day);
@@ -42,6 +45,14 @@ vec3 lightmapLight(vec2 lmcoord) {
 	// Small lift around mid block light: caves read better, fully lit rooms
 	// are untouched.
 	tint *= 1.0 + 0.10 * (block - block * block) * 4.0;
+
+#ifdef DIMENSION_TUNING
+	/* The Nether has no sky light, so its whole look is warm block light and
+	   lava. The End has neither a sun nor a sky and reads violet. Tinting the
+	   light, rather than the whole frame, keeps torches and lava correct. */
+	tint = mix(tint, tint * vec3(1.10, 0.90, 0.82), netherAmount());
+	tint = mix(tint, tint * vec3(0.90, 0.92, 1.14), endAmount());
+#endif
 
 	return raw * tint;
 }
@@ -91,6 +102,19 @@ vec3 shadeLit(vec3 albedo, vec2 lmcoord, vec3 viewPos, vec3 normalView) {
 		float t = frameTimeCounter * 1.6;
 		float ripple = sin(worldPos.x * 1.9 + t) * sin(worldPos.z * 2.1 - t * 0.8);
 		light *= 1.0 + 0.22 * ripple;
+	}
+#endif
+
+#ifdef HANDHELD_LIGHT
+	/* A light source in your hand lights the ground around you, which is what
+	   makes a torch useful in a cave. heldBlockLightValue is a uniform, so
+	   carrying nothing costs one comparison. */
+	if (heldBlockLightValue > 0) {
+		float d = length(viewPos);
+		float falloff = max(1.0 - d * (1.0 / 13.0), 0.0);
+		falloff *= falloff;
+		light += vec3(1.15, 0.82, 0.55) * falloff *
+		         (float(heldBlockLightValue) * (1.0 / 15.0)) * 0.55;
 	}
 #endif
 

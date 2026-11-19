@@ -38,7 +38,7 @@ void main() {
 	cirrusTint = mix(cirrusTint, vec3(1.28, 0.80, 0.56),
 	                 clamp(horizonAmount() * SUNSET_STRENGTH, 0.0, 1.0) * 0.85);
 
-	sky = mix(sky, cirrusTint, cirrus * 0.55);
+	sky = mix(sky, cirrusTint, cirrus * 0.55 * overworldAmount());
 #endif
 
 	color = vec4(sky, 1.0);
