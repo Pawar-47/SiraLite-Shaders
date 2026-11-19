@@ -12,9 +12,10 @@ Read [NOTICE.md](NOTICE.md) before changing anything under `shaders/`.
   pack with retuned defaults. Changing shader code means diverging from a pack its
   author maintains, and it must then be documented as a change in `NOTICE.md`.
 - **Allowed changes are narrow:** option defaults in `shaders/lib/config.glsl`,
-  profiles and `program.<name>.enabled` switches in `shaders/shaders.properties`.
-  That is the whole tuning surface, and `Ref/OPTIMIZED.md` records every value that
-  was already changed.
+  profiles and `program.<name>.enabled` switches in `shaders/shaders.properties`,
+  and one `profile.<name>=` label line per language in `shaders/lang/*.lang` for a
+  profile added there. That is the whole tuning surface, and `Ref/OPTIMIZED.md`
+  records every value that was already changed.
 - **Keep the licence and notice accurate.** If you modify anything under
   `shaders/`, add it to the dated list in `NOTICE.md`. The LGPL requires it, and
   `LICENSE-LGPL-3.0.txt` must keep shipping inside the built zip (it does, via the
