@@ -24,7 +24,22 @@ replay_*.log
 
 
 
-# Third-party reference shader packs are kept on disk for study and tuning, not
-# committed: Ref/ is MakeUp - Ultra Fast (LGPL-3.0), not part of this MIT
-# project's own sources, and it ships its own textures.
-Ref/
+# Third-party reference pack: MakeUp - Ultra Fast (LGPL-3.0). Its shader bodies
+# and textures stay on disk only and are never committed or packaged. What is
+# tracked is deliberately small: the two files edited for low-end hardware, plus
+# the pack's own licence and credits so attribution travels with them.
+#
+# Everything under Ref/ is ignored first, then individual paths are re-included.
+# The directories have to be re-included too, or git never descends into them.
+Ref/*
+!Ref/OPTIMIZED.md
+!Ref/LICENSE
+!Ref/README.md
+!Ref/Credits
+!Ref/shaders/
+Ref/shaders/*
+!Ref/shaders/shaders.properties
+!Ref/shaders/lib/
+Ref/shaders/lib/*
+!Ref/shaders/lib/config.glsl
+
