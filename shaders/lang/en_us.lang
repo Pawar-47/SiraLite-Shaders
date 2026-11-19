@@ -3,6 +3,7 @@ profile.comment=Ultra Performance (default) / Balanced / Visual Performance. Pic
 screen.PERFORMANCE=Performance
 screen.LIGHTING=Lighting and Colour
 screen.ATMOSPHERE=Atmosphere
+screen.VEGETATION=Vegetation
 screen.WATER=Water
 screen.SHADOWS=Shadows
 screen.POST=Post Processing
@@ -12,6 +13,18 @@ option.POST_PROCESSING.comment=The full-screen pass that draws distance fog, the
 
 option.shadowDistance=Shadow Distance
 option.shadowDistance.comment=How many blocks the shadow pass covers. Lower means much less geometry re-rendered per frame. Shadows fade out instead of stopping at a hard line.
+
+option.WAVING_PLANTS=Waving Plants
+option.WAVING_PLANTS.comment=Grass, flowers, crops and leaves sway in the wind. Costs two sine calls per vertex and nothing per pixel, so it is on even in the fastest preset.
+
+option.WAVING_WATER=Waving Water
+option.WAVING_WATER.comment=The water surface moves up and down slightly. Vertex cost only.
+
+option.WAVE_STRENGTH=Wave Strength
+option.WAVE_STRENGTH.comment=How far vegetation and water travel. Does not change the cost.
+
+option.UNDERWATER_CAUSTICS=Underwater Caustics
+option.UNDERWATER_CAUSTICS.comment=Animated light ripples on everything while the camera is underwater. Free above water, two sine calls below it.
 
 option.SHADOW_QUALITY=Shadow Quality
 option.SHADOW_QUALITY.comment=Off skips the shadow pass completely, which is the single biggest win on integrated graphics. Hard is one tap per pixel, Soft averages four.

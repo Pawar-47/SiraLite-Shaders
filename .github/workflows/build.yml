@@ -5,9 +5,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   shaderpack:
-    name: Check sources and package the shader pack
+    name: Check sources, package, and publish the release
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -30,9 +33,35 @@ jobs:
       - name: Show the produced zip
         run: ls -l build/releases
 
+      - name: Read the version
+        id: version
+        run: |
+          version=$(grep -E '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Pack version: $version"
+
       - name: Upload shader pack
         uses: actions/upload-artifact@v4
         with:
-          name: siralite-shaders
+          name: siralite-shaders-${{ steps.version.outputs.version }}
           path: build/releases/*.zip
           if-no-files-found: error
+
+      # A release needs write access, which a pull request from a fork does not
+      # get, so only publish on pushes and manual runs.
+      - name: Publish GitHub release
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          tag="v$version"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag exists, replacing its asset."
+            gh release upload "$tag" build/releases/*.zip --clobber
+          else
+            echo "Creating release $tag."
+            gh release create "$tag" build/releases/*.zip \
+              --title "SiraLite Shaders $version" \
+              --notes-file docs/RELEASE_NOTES.md
+          fi

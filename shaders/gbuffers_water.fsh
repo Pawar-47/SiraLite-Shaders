@@ -10,15 +10,17 @@ in vec2 texcoord;
 in vec4 glcolor;
 in vec3 viewPos;
 in vec3 normalView;
+in float isWater;
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
 /*
-    Translucent terrain: water, ice and glass. The reflection is the analytic
-    sky colour, weighted by the angle between the view ray and the surface
-    normal. There is no scene, planar or screen space reflection anywhere in
-    this pack, so this costs arithmetic only.
+    Translucent terrain: water, ice and glass. Only water gets the surface
+    treatment now, because shaders/block.properties tells us which block this
+    is. The reflection is an analytic sky colour weighted by view angle and the
+    highlight is the sun's own direction, so together they cost arithmetic only
+    and never a texture fetch or a second pass.
 */
 void main() {
 	vec4 albedo = texture(gtexture, texcoord) * glcolor;
@@ -50,7 +52,19 @@ void main() {
 	reflected = normalize(reflected + vec3(wx, 0.0, wz) * 0.09);
 #endif
 
-	lit = mix(lit, skyGradient(normalize(reflected)), fres * WATER_REFLECTION_STRENGTH);
+	reflected = normalize(reflected);
+
+	// Sky reflected at grazing angles, weighted out entirely on glass.
+	lit = mix(lit, skyGradient(reflected), fres * WATER_REFLECTION_STRENGTH * isWater);
+
+	// Sun glint: cos^32 through five squarings, no pow().
+	float glint = max(dot(reflected, normalize(sunPosition)), 0.0);
+	glint *= glint;
+	glint *= glint;
+	glint *= glint;
+	glint *= glint;
+	glint *= glint;
+	lit += vec3(1.0, 0.92, 0.78) * glint * 0.9 * isWater * daylightAmount();
 #endif
 
 	color = vec4(lit, albedo.a);

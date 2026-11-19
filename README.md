@@ -19,7 +19,7 @@ project skeleton. See [CREDITS.md](CREDITS.md) for exactly what came from where.
 | Question | Answer |
 | --- | --- |
 | Is this a real, complete shader pack? | Yes. Every program the pack ships is implemented; there are no stubs and no placeholder code. |
-| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, and uploads `siralite-shaders-1.1.0-shaderpack.zip` as an artifact. The current commit is green. See [Verification](#verification). |
+| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, publishes `siralite-shaders-1.2.0-shaderpack.zip` as a **GitHub release**, and attaches the same zip to the workflow run. See [Verification](#verification). |
 | Has it been compiled and run in Minecraft? | **No.** It was written in an environment with no GPU and no Minecraft. Packaging is verified; GPU compilation and appearance are not. |
 | Why is the release zip only about 24 KB? | Because the pack is pure GLSL - about 1,300 lines of source and not one image. See [Why the release is so small](#why-the-release-is-so-small). |
 | Are there FPS numbers? | **No, and there will not be any invented ones.** Everything below labelled as an optimisation is a code-level property you can check by reading the file, not a measurement. |
@@ -120,6 +120,13 @@ no shader pack will.
 
 Do not unzip the file. Iris loads the zip directly.
 
+### Downloads
+
+Every push to `master` builds the pack and publishes it as a GitHub release.
+Open **Releases** on this repository and download
+`siralite-shaders-<version>-shaderpack.zip`; the same zip is attached to the
+workflow run as an artifact.
+
 ### From source
 
 ```
@@ -143,7 +150,8 @@ Maximum FPS. No shadow pass at all, no extra fetches, no extra passes.
 | --- | --- |
 | Shadows | Off. The shadow pass is not even rendered. |
 | Post processing | One pass: one scene fetch, one depth fetch. Switch `POST_PROCESSING` off to remove that pass entirely. |
-| Water | Tinted lighting plus a cheap analytic sky reflection at 15%. No waves. |
+| Water | Tinted lighting plus a cheap analytic sky reflection at 15%, and a sun glint. No shimmer. |
+| Vegetation | Grass, leaves and the water surface sway. Vertex cost only, so it stays on. |
 | Sky / fog / grade | On - these are arithmetic only and are the pack's look. |
 | Pixel cost on terrain | 1 texture fetch, 1 lightmap fetch, arithmetic |
 
@@ -192,9 +200,13 @@ Settings** with a label and tooltip from `shaders/lang/en_us.lang`.
 | `SUNSET_STRENGTH` | `1.0` | Warmth of sunrise and sunset in sky, fog and light tint |
 | `NIGHT_BRIGHTNESS` | `1.0` | Light level after dark |
 | `FOG_DENSITY` | `1.0` | How close the distance fog starts |
+| `WAVING_PLANTS` | on | Grass, flowers, crops and leaves sway in the wind (vertex stage only) |
+| `WAVING_WATER` | on | The water surface moves up and down (vertex stage only) |
+| `WAVE_STRENGTH` | `1.0` | How far vegetation and water travel. Does not change the cost |
 | `WATER_REFLECTIONS` | on | Analytic sky reflection on water |
 | `WATER_REFLECTION_STRENGTH` | `0.15` | How much sky is mixed into the water surface |
 | `WATER_WAVES` | off | Animated shimmer of the reflected direction |
+| `UNDERWATER_CAUSTICS` | on | Light ripples on everything while submerged |
 | `BLOOM` | off | Cheap four-tap bright pass |
 | `VIGNETTE` | off | Darkened screen corners |
 | `SSAO` | off | Depth-only contact shadows |
@@ -305,7 +317,9 @@ measured FPS claim.
   so a missing normal becomes a zero vector and a neutral result rather than a
   NaN.
 - Varyings are limited to what is actually used: `texcoord`, `lmcoord`, `glcolor`,
-  `viewPos`, `normalView`.
+  `viewPos`, `normalView`, plus one float on the water program for the water mask.
+- Vegetation and water motion are per vertex, never per pixel: two sine calls on
+  grass and leaves, one on water, and nothing at all for blocks without an id.
 
 **Cheaper shadows**
 
@@ -335,6 +349,8 @@ shaders/
                         depth linearisation
   lib/lighting.glsl     the lightmap tint, sun facing, shadeLit() used by all lit programs
   lib/shadow.glsl       shadow map lookup; only compiled when SHADOW_QUALITY > 0
+  lib/waving.glsl       per-vertex sway for vegetation and the water surface
+  block.properties      block ids handed to the shaders as mc_Entity.x
   shadow.vsh/.fsh       shadow pass; fsh only discards cutouts and writes depth
   gbuffers_terrain      blocks and chunk geometry (the hot path)
   gbuffers_water        translucent terrain: water, ice, glass
@@ -369,16 +385,19 @@ There is deliberately **no** `deferred.*`: its absence removes a full-screen cop
   because they multiply the geometry passes.
 - **Water reflections are sky-only.** They ignore terrain, entities and the sun
   disc except as colour. That is the trade that makes them free.
-- **Translucent geometry shares the water treatment.** Glass, ice and stained
-  glass get the same view-angle sky sheen that water gets. On ice it looks
-  deliberate; on strongly tinted glass the sheen is a slight extra tint.
+- **Waving needs `block.properties`.** If that file is not loaded, or a block name
+  in it does not exist in your Minecraft version, that block simply does not
+  move. Nothing breaks; the motion is skipped.
+- **Tall plants sway from their own block's base.** A two block tall plant has two
+  halves that each sway from their own bottom edge, so at very high
+  `WAVE_STRENGTH` a slight seam can appear between the halves.
+- **No parallax, no TAA, no SSR, no volumetric clouds.** All of them cost more
+  than the pack's total budget.
 - **No bloom quality to speak of.** The optional bloom is four wide taps, not a
   multi-pass blur. It is a glow, not a photographic bloom.
 - **Ambient occlusion is depth-only.** It is a four-tap contact shadow with no
   normal-aware half-sphere sampling, so it darkens grooves and not much else. It
   is off by default and cannot be verified from here.
-- **No waving foliage, no parallax, no TAA, no SSR, no volumetric clouds.** All
-  of them cost more than the pack's total budget.
 - **Nights are dark.** `NIGHT_BRIGHTNESS` exists because the pack follows
   vanilla's lightmap; raise it if the game is unplayable for you.
 - **The `pack_format` in `pack.mcmeta` is cosmetic.** Iris reads the zip, not the
@@ -415,16 +434,16 @@ CI (`.github/workflows/build.yml`) runs on every push:
    balanced braces and parentheses, `RENDERTARGETS` present, every fragment
    shader input matched by a vertex shader output, every `#include` resolvable,
    no option defined twice with different values.
-2. `./gradlew assemble`, and the produced `build/releases/*.zip` is uploaded as an
-   artifact (the step fails the build if no zip is produced).
+2. `./gradlew assemble`, then the zip is uploaded as an artifact and published as
+   a GitHub release tagged `v<version>`. Both steps fail the build if no zip is
+   produced.
 
-Both steps pass on the current commit (`BUILD SUCCESSFUL in 58s`). That proves the
-sources are structurally sound and that the pack packages correctly - you can
-download the release zip from the Actions run instead of building it yourself.
-The last recorded CI run produced `siralite-shaders-1.0.0-shaderpack.zip` at
-24,271 bytes, wrapped by GitHub in a 16,452-byte artifact download. It does **not** prove the shaders compile on a GPU or that they look
-right; only a real client can. Check the console for `[Iris]` compile errors after
-applying the pack.
+The 1.0.0 run produced `siralite-shaders-1.0.0-shaderpack.zip` at 24,271 bytes,
+which GitHub wrapped in a 16,452-byte artifact download. That proves the sources
+are structurally sound and that the pack packages correctly - you can download the
+release zip from the Releases page instead of building it yourself. It does **not**
+prove the shaders compile on a GPU or that they look right; only a real client can.
+Check the console for `[Iris]` compile errors after applying the pack.
 
 ## Credits and licence
 

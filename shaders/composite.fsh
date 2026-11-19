@@ -4,7 +4,6 @@
 
 uniform sampler2D colortex0;
 uniform sampler2D depthtex0;
-uniform int isEyeInWater;
 
 in vec2 texcoord;
 

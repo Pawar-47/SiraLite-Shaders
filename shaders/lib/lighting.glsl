@@ -65,6 +65,11 @@ vec3 shadeLit(vec3 albedo, vec2 lmcoord, vec3 viewPos, vec3 normalView) {
 	vec3 light = lightmapLight(lmcoord);
 	light *= sunFacing(normalView);
 
+	/* Light that arrives without the sun is sky light, and sky light is blue.
+	   Shadowed ground therefore keeps a cold ambient instead of going black,
+	   which is what makes shadows look like shade rather than holes. */
+	const vec3 shadeTint = vec3(0.34, 0.42, 0.60);
+
 #if SHADOW_QUALITY > 0
 	// Only where sky light reaches, so interiors and caves are left alone.
 	float skyMask = smoothstep(0.05, 0.6, lmcoord.y);
@@ -75,7 +80,18 @@ vec3 shadeLit(vec3 albedo, vec2 lmcoord, vec3 viewPos, vec3 normalView) {
 	float fade = smoothstep(shadowDistance * 0.82, shadowDistance, length(viewPos));
 	shadow = mix(shadow, 1.0, fade);
 
-	light *= mix(1.0, shadow, SHADOW_STRENGTH * skyMask);
+	light *= mix(vec3(1.0), mix(shadeTint, vec3(1.0), shadow), SHADOW_STRENGTH * skyMask);
+#endif
+
+#ifdef UNDERWATER_CAUSTICS
+	/* isEyeInWater is a uniform, so this branch is taken by every invocation
+	   at once: it costs nothing above water and a couple of sines below it. */
+	if (isEyeInWater == 1) {
+		vec3 worldPos = cameraPosition + mat3(gbufferModelViewInverse) * viewPos;
+		float t = frameTimeCounter * 1.6;
+		float ripple = sin(worldPos.x * 1.9 + t) * sin(worldPos.z * 2.1 - t * 0.8);
+		light *= 1.0 + 0.22 * ripple;
+	}
 #endif
 
 	return albedo * light;

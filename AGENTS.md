@@ -15,8 +15,12 @@ The Gradle setup is for development and packaging only.
   `composite1+` or `final` passes without measuring the cost first.
 - Common code lives in `shaders/lib/`. `common.glsl` holds uniforms and pure
   helpers, `lighting.glsl` the lightmap and lighting model, `shadow.glsl` the
-  shadow lookup (compiled only when `SHADOW_QUALITY > 0`), `settings.glsl` every
-  option.
+  shadow lookup (compiled only when `SHADOW_QUALITY > 0`), `waving.glsl` the
+  per-vertex vegetation and water motion, `settings.glsl` every option.
+- Block ids live in `shaders/block.properties` and arrive as `mc_Entity.x` in the
+  chunk vertex shaders. Ids 10001 to 10003 are taken; keep `lib/waving.glsl` and
+  `block.properties` in sync, and gate new behaviour on an exact id range so
+  unmapped blocks (id 0 or a registry id) are never affected.
 - Never declare a uniform in an individual program if a lib already declares it.
   Duplicate declarations are a compile error.
 - A uniform declared in a `lib/` file must be one that Iris binds for every

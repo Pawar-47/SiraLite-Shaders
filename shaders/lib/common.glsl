@@ -26,6 +26,7 @@ uniform float viewWidth;
 uniform float viewHeight;
 uniform float frameTimeCounter;
 uniform float rainStrength;
+uniform int isEyeInWater;
 uniform float near;
 uniform float far;
 

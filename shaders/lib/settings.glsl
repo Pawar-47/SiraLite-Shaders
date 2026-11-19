@@ -52,6 +52,22 @@ const float shadowDistance = 96.0; // [64 96 128 160] Distance in blocks the sha
 //#define WATER_WAVES // Animated shimmer on the reflected direction (adds 4 sin/cos per water pixel)
 
 /* ------------------------------------------------------------------ *
+ *  VEGETATION AND WATER MOTION
+ *  Vertex stage only. A couple of sine calls per vertex and no per-pixel
+ *  cost at all, which is why this is on even in the fastest preset.
+ * ------------------------------------------------------------------ */
+
+#define WAVING_PLANTS // Grass, flowers, crops and leaves sway in the wind
+#define WAVING_WATER // The water surface moves up and down slightly
+#define WAVE_STRENGTH 1.0 // [0.5 1.0 1.5 2.0] How far vegetation and water travel
+
+/* ------------------------------------------------------------------ *
+ *  UNDERWATER
+ * ------------------------------------------------------------------ */
+
+#define UNDERWATER_CAUSTICS // Animated light ripples on everything while the camera is submerged
+
+/* ------------------------------------------------------------------ *
  *  PERFORMANCE
  *  The one switch that can remove a whole full-screen pass. With this
  *  off, composite.fsh is not run at all: no fog, no grade, no underwater
