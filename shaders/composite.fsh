@@ -6,6 +6,7 @@ uniform sampler2D colortex0;
 uniform sampler2D depthtex0;
 
 in vec2 texcoord;
+in vec3 sunScreen;
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
@@ -61,6 +62,18 @@ void main() {
 	// Rain: cooler, flatter light over the whole scene. Two multiplies and a
 	// mix, no extra fetch.
 	scene = mix(scene, vec3(luma(scene)) * vec3(0.94, 0.97, 1.02), rainStrength * 0.25);
+
+#ifdef SUN_GLARE
+	/* Warm glare around the sun's screen position, computed in the vertex stage.
+	   Restricted to clean sky, so it never paints a halo on a mountain that is
+	   in front of the sun. */
+	vec2 aspect = vec2(viewWidth / max(viewHeight, 1.0), 1.0);
+	float glareDist = length((texcoord - sunScreen.xy) * aspect);
+	float glare = 1.0 / (1.0 + glareDist * glareDist * 90.0);
+	glare *= sunScreen.z * step(0.9999, depth);
+	glare *= clamp(horizonAmount() * SUNSET_STRENGTH + 0.25, 0.0, 1.0) * daylightAmount();
+	scene += vec3(1.0, 0.72, 0.45) * glare * 0.30;
+#endif
 
 #ifdef BLOOM
 	{

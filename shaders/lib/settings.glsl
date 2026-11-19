@@ -40,6 +40,9 @@ const float shadowDistance = 96.0; // [64 96 128 160] Distance in blocks the sha
  * ------------------------------------------------------------------ */
 
 #define FOG_DENSITY 1.0 // [0.6 0.8 1.0 1.2 1.4] Distance fog density
+#define CLOUD_SHADING // Grade the clouds by time of day: white by day, blue-grey at night, warm at the horizon
+#define SKY_CIRRUS // Thin high cloud streaks in the sky. Four sine calls on sky pixels only
+#define SUN_GLARE // Warm glare around the sun's screen position, over clean sky only
 
 /* ------------------------------------------------------------------ *
  *  WATER
@@ -49,6 +52,7 @@ const float shadowDistance = 96.0; // [64 96 128 160] Distance in blocks the sha
 
 #define WATER_REFLECTIONS // Sky colour reflected on water surfaces, weighted by view angle
 #define WATER_REFLECTION_STRENGTH 0.15 // [0.0 0.15 0.3 0.5 0.7] Reflection strength
+#define WATER_DEPTH // Water gets its colour and opacity from how deep it is, plus a shoreline rim
 //#define WATER_WAVES // Animated shimmer on the reflected direction (adds 4 sin/cos per water pixel)
 
 /* ------------------------------------------------------------------ *
@@ -60,6 +64,7 @@ const float shadowDistance = 96.0; // [64 96 128 160] Distance in blocks the sha
 #define WAVING_PLANTS // Grass, flowers, crops and leaves sway in the wind
 #define WAVING_WATER // The water surface moves up and down slightly
 #define WAVE_STRENGTH 1.0 // [0.5 1.0 1.5 2.0] How far vegetation and water travel
+#define VEGETATION_POLISH // Grass and leaves get richer colour and a little extra light, as if the sun went through them
 
 /* ------------------------------------------------------------------ *
  *  UNDERWATER

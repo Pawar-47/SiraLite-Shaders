@@ -19,7 +19,7 @@ project skeleton. See [CREDITS.md](CREDITS.md) for exactly what came from where.
 | Question | Answer |
 | --- | --- |
 | Is this a real, complete shader pack? | Yes. Every program the pack ships is implemented; there are no stubs and no placeholder code. |
-| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, publishes `siralite-shaders-1.2.0-shaderpack.zip` as a **GitHub release**, and attaches the same zip to the workflow run. See [Verification](#verification). |
+| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, publishes `siralite-shaders-1.3.0-shaderpack.zip` as a **GitHub release**, and attaches the same zip to the workflow run. See [Verification](#verification). |
 | Has it been compiled and run in Minecraft? | **No.** It was written in an environment with no GPU and no Minecraft. Packaging is verified; GPU compilation and appearance are not. |
 | Why is the release zip only about 24 KB? | Because the pack is pure GLSL - about 1,300 lines of source and not one image. See [Why the release is so small](#why-the-release-is-so-small). |
 | Are there FPS numbers? | **No, and there will not be any invented ones.** Everything below labelled as an optimisation is a code-level property you can check by reading the file, not a measurement. |
@@ -151,7 +151,8 @@ Maximum FPS. No shadow pass at all, no extra fetches, no extra passes.
 | Shadows | Off. The shadow pass is not even rendered. |
 | Post processing | One pass: one scene fetch, one depth fetch. Switch `POST_PROCESSING` off to remove that pass entirely. |
 | Water | Tinted lighting plus a cheap analytic sky reflection at 15%, and a sun glint. No shimmer. |
-| Vegetation | Grass, leaves and the water surface sway. Vertex cost only, so it stays on. |
+| Vegetation | Grass, leaves and the water surface sway; grass and leaves get richer colour. Vertex cost only, so it stays on. |
+| Clouds and sky | Vanilla cloud shapes, graded by time of day, plus high cirrus and a warm sun glare. |
 | Sky / fog / grade | On - these are arithmetic only and are the pack's look. |
 | Pixel cost on terrain | 1 texture fetch, 1 lightmap fetch, arithmetic |
 
@@ -200,12 +201,17 @@ Settings** with a label and tooltip from `shaders/lang/en_us.lang`.
 | `SUNSET_STRENGTH` | `1.0` | Warmth of sunrise and sunset in sky, fog and light tint |
 | `NIGHT_BRIGHTNESS` | `1.0` | Light level after dark |
 | `FOG_DENSITY` | `1.0` | How close the distance fog starts |
+| `CLOUD_SHADING` | on | Grade vanilla's cloud shapes by time of day and sunset warmth |
+| `SKY_CIRRUS` | on | Thin high cloud streaks over the sky (sky pixels only) |
+| `SUN_GLARE` | on | Warm glare around the sun, strongest when it is low |
 | `WAVING_PLANTS` | on | Grass, flowers, crops and leaves sway in the wind (vertex stage only) |
 | `WAVING_WATER` | on | The water surface moves up and down (vertex stage only) |
 | `WAVE_STRENGTH` | `1.0` | How far vegetation and water travel. Does not change the cost |
+| `VEGETATION_POLISH` | on | Richer colour and a little extra light on grass and leaves |
 | `WATER_REFLECTIONS` | on | Analytic sky reflection on water |
 | `WATER_REFLECTION_STRENGTH` | `0.15` | How much sky is mixed into the water surface |
 | `WATER_WAVES` | off | Animated shimmer of the reflected direction |
+| `WATER_DEPTH` | on | Water colour and opacity follow its depth, plus a shoreline rim |
 | `UNDERWATER_CAUSTICS` | on | Light ripples on everything while submerged |
 | `BLOOM` | off | Cheap four-tap bright pass |
 | `VIGNETTE` | off | Darkened screen corners |
@@ -338,6 +344,8 @@ measured FPS claim.
 
 - No reflection, refraction or screen-space pass. One extra branch-free block of
   arithmetic in the water shader only.
+- The water depth effect is one fetch of Iris's pre-translucents depth copy, on
+  water pixels only, and it replaces work that would otherwise be spent guessing.
 - Waves use two sines per axis, only when enabled.
 
 ## File map
@@ -398,6 +406,10 @@ There is deliberately **no** `deferred.*`: its absence removes a full-screen cop
 - **Ambient occlusion is depth-only.** It is a four-tap contact shadow with no
   normal-aware half-sphere sampling, so it darkens grooves and not much else. It
   is off by default and cannot be verified from here.
+- **Clouds keep vanilla's shapes.** The pack grades their colour and adds cirrus
+  above them; it does not generate volumetric clouds, so the blocky silhouettes
+  are vanilla's. Volumetric clouds cost more per frame than this pack's entire
+  budget, and every attempt to fake them cheaply looks worse than vanilla.
 - **Nights are dark.** `NIGHT_BRIGHTNESS` exists because the pack follows
   vanilla's lightmap; raise it if the game is unplayable for you.
 - **The `pack_format` in `pack.mcmeta` is cosmetic.** Iris reads the zip, not the

@@ -93,6 +93,24 @@ vec3 skyGradient(vec3 dir) {
 	return max(col, vec3(0.0));
 }
 
+/* Thin high cloud, for the sky program only. The ray is projected onto a fixed
+   altitude so the pattern slides past as you move, and the two-tone stretch
+   reads as streaks rather than blobs. No texture, no hash, four sine calls. */
+float cirrusDensity(vec3 dir) {
+	if (dir.y < 0.06) {
+		return 0.0;
+	}
+
+	vec2 p = clamp(dir.xz / dir.y, vec2(-40.0), vec2(40.0)) * vec2(0.5, 1.5);
+	p += vec2(frameTimeCounter * 0.004, frameTimeCounter * 0.0015);
+
+	float n = sin(p.x * 1.3 + sin(p.y * 2.1)) + sin(p.y * 0.8 - sin(p.x * 1.7) * 0.8);
+	float density = smoothstep(0.6, 1.3, n);
+
+	// Fade out at the horizon, where the pattern would alias into noise.
+	return density * smoothstep(0.06, 0.30, dir.y);
+}
+
 /* Colour grade, done in gamma space on purpose: staying in the buffer's own
    space saves three pow() calls per pixel, which is real time on integrated
    graphics. The buffer is 8 bit, so there is no HDR range to lose. */

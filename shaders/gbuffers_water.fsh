@@ -5,6 +5,13 @@
 uniform sampler2D gtexture;
 uniform float alphaTestRef = 0.1;
 
+#ifdef WATER_DEPTH
+/* Opaque scene depth, snapshotted by Iris before translucents are drawn, so
+   this is the depth of whatever is behind the water. It is the separate copy,
+   not the depth attachment this pass writes to. */
+uniform sampler2D depthtex1;
+#endif
+
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
@@ -17,10 +24,11 @@ layout(location = 0) out vec4 color;
 
 /*
     Translucent terrain: water, ice and glass. Only water gets the surface
-    treatment now, because shaders/block.properties tells us which block this
-    is. The reflection is an analytic sky colour weighted by view angle and the
-    highlight is the sun's own direction, so together they cost arithmetic only
-    and never a texture fetch or a second pass.
+    treatment, because shaders/block.properties tells us which block this is.
+    The reflection is an analytic sky colour weighted by view angle, the
+    highlight is the sun's own direction, and the depth comes from Iris's
+    pre-translucents depth copy: together they cost one depth fetch and
+    arithmetic, never a reflection pass.
 */
 void main() {
 	vec4 albedo = texture(gtexture, texcoord) * glcolor;
@@ -30,6 +38,25 @@ void main() {
 	}
 
 	vec3 lit = shadeLit(albedo.rgb, lmcoord, viewPos, normalView);
+	float outAlpha = albedo.a;
+
+#ifdef WATER_DEPTH
+	/* The gap between the water surface and the opaque geometry behind it is
+	   the water's thickness. Shallow water stays clear and bright, deep water
+	   turns blue and hides what is under it, and the last half block before a
+	   shore gets a rim of light. */
+	float surfaceDepth = linearizeDepth(gl_FragCoord.z);
+	float behindDepth = linearizeDepth(texture(depthtex1, gl_FragCoord.xy / vec2(viewWidth, viewHeight)).r);
+	float thickness = clamp(behindDepth - surfaceDepth, 0.0, 64.0);
+	float depthAmount = thickness / (thickness + 3.0);
+
+	lit = mix(lit, lit * vec3(0.42, 0.72, 1.02), depthAmount * 0.85 * isWater);
+
+	float shore = (1.0 - smoothstep(0.0, 0.55, thickness)) * isWater;
+	lit += vec3(0.85, 0.95, 1.0) * shore * 0.12;
+
+	outAlpha = mix(outAlpha, max(outAlpha, 0.85), depthAmount * 0.75 * isWater);
+#endif
 
 #ifdef WATER_REFLECTIONS
 	vec3 viewDir = normalize(viewPos);
@@ -67,5 +94,5 @@ void main() {
 	lit += vec3(1.0, 0.92, 0.78) * glint * 0.9 * isWater * daylightAmount();
 #endif
 
-	color = vec4(lit, albedo.a);
+	color = vec4(lit, outAlpha);
 }

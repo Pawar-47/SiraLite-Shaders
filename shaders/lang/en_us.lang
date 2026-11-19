@@ -56,6 +56,21 @@ option.NIGHT_BRIGHTNESS.comment=Light level of moonlit and unlit areas after dar
 option.FOG_DENSITY=Fog Density
 option.FOG_DENSITY.comment=Higher pulls the distance fog closer, lower pushes it away.
 
+option.CLOUD_SHADING=Cloud Shading
+option.CLOUD_SHADING.comment=Grades vanilla's cloud shapes by time of day: white by day, blue-grey at night, warm underneath at sunrise and sunset. Costs a handful of arithmetic on cloud pixels only.
+
+option.SKY_CIRRUS=High Cirrus
+option.SKY_CIRRUS.comment=Thin high cloud streaks over the sky, sliding as you move. Four sine calls on sky pixels only.
+
+option.SUN_GLARE=Sun Glare
+option.SUN_GLARE.comment=Warm glare around the sun's position on screen, strongest at sunrise and sunset. Only drawn over clean sky, so it never haloes a mountain.
+
+option.VEGETATION_POLISH=Vegetation Polish
+option.VEGETATION_POLISH.comment=Grass and leaves get richer colour and a little extra light, as if the sun went through them.
+
+option.WATER_DEPTH=Water Depth
+option.WATER_DEPTH.comment=Water colour and transparency follow how deep it is: shallow water stays clear, deep water turns blue, and shallows get a bright shoreline rim. One depth fetch.
+
 option.WATER_REFLECTIONS=Water Reflections
 option.WATER_REFLECTIONS.comment=Sky colour reflected on water, weighted by viewing angle. Arithmetic only, no extra texture fetches.
 

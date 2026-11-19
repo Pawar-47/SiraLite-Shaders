@@ -1,44 +1,57 @@
-# SiraLite Shaders 1.2.0
+# SiraLite Shaders 1.3.0
 
-Movement and shade. Everything added here is either free per pixel or paid for
-per vertex, which is the only kind of feature this pack can afford.
+Sky, water and plants, which is where a low-end pack can still look expensive.
+Everything here is either a handful of arithmetic on pixels that were already
+being shaded, or one depth fetch.
 
-## New
+## Clouds and sky
 
-- **Waving grass, flowers, crops and leaves**, driven by block ids from
-  `shaders/block.properties`. Vertex stage only: two sine calls per vertex and
-  nothing per pixel.
-- **Moving water surface** plus a **sun glint** at grazing angles.
-- **Water-only surface treatment.** Glass, ice and stained glass no longer get
-  the water sheen, because the pack now knows which block it is drawing.
-- **Underwater caustics** while the camera is submerged, free above water.
-- **Shadows tinted with sky light** instead of going black, so shade looks like
-  shade.
-- **Sunset and sunrise glow gathers on the sun's side** of the sky instead of
-  ringing the whole horizon.
-- **Dither before the 8-bit write**, so fog and sky gradients stop banding.
+- **Cloud shading.** Vanilla keeps its cloud shapes; the pack grades their
+  colour. White by day, blue-grey at night, and warm from underneath at sunrise
+  and sunset, where vanilla leaves them the same pale beige all day.
+- **High cirrus.** Thin streaks of high cloud in the sky, projected so they slide
+  past as you move and lit warm at dawn and dusk. Four sine calls, no texture.
+- **Sun glare.** A warm halo around the sun's screen position, strongest when the
+  sun is low, drawn only over clean sky so it never haloes a mountain.
 
-## Speed
+## Water
 
-- `POST_PROCESSING` can remove the whole post pass in one click.
-- `shadowDistance` (96 blocks) with a fade-out, and no translucent geometry in
-  the shadow pass at all.
-- Ultra Performance stays the default: no shadow pass, one post pass, two
-  texture fetches per terrain pixel.
+- **Depth-based colour and transparency.** Water now reads Iris's
+  pre-translucents depth copy: shallow water stays clear and bright, deep water
+  turns blue and hides what is under it. One fetch, water pixels only.
+- **Shoreline rim** on the last half block of shallow water.
+- Reflections, the sun glint, the moving surface and underwater caustics are all
+  still there.
+
+## Plants
+
+- **Waving** grass, flowers, crops and leaves (from 1.2.0), and now
+- **Vegetation polish**: grass and leaves get richer colour and a little extra
+  light, as if sunlight were passing through them. Branchless, and it only shows
+  on vegetation.
+
+## Still cheap
+
+- Ultra Performance is the default: no shadow pass, one post pass, two texture
+  fetches per terrain pixel.
+- New per-pixel work is confined to the pixels it affects: sky, cloud and water
+  pixels. Terrain, the hot path, gains one varying and a dozen instructions.
+- Every new effect has an option and can be switched off one at a time.
 
 ## Install
 
 1. Fabric Loader for Minecraft 1.21.5, plus Iris 1.8.x (Sodium recommended).
-2. Drop `siralite-shaders-1.2.0-shaderpack.zip` into `shaderpacks/`. Do not
+2. Drop `siralite-shaders-1.3.0-shaderpack.zip` into `shaderpacks/`. Do not
    unzip it.
 3. Options > Video Settings > Shader Packs > SiraLite Shaders > Apply.
 
-If you are short on frames, read the "Squeezing FPS on a real low-end PC"
-section of the README before changing anything in the shader.
+If you are short on frames, read "Squeezing FPS on a real low-end PC" in the
+README before changing anything in the shader.
 
 ## Honest note
 
-This release was written and packaged without a GPU or a Minecraft install. The
-sources pass structural checks and CI builds the zip; nobody has yet seen it
-running. No FPS numbers are given because none were measured. If the pack fails
-to compile on your GPU, the `[Iris]` lines in the game log say where.
+Written and packaged without a GPU or a Minecraft install. The sources pass
+structural checks and CI builds and publishes this zip; nobody has yet seen the
+result on a screen. No FPS figures are given because none were measured. If a
+shader fails to compile on your GPU, the `[Iris]` lines in the game log name the
+file and the line.
