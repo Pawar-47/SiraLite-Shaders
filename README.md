@@ -61,8 +61,40 @@ Two profiles are added above MakeUp's own ladder:
   in the pack. It costs the haze that hides the edge of your render distance, so
   compare before choosing.
 
-MakeUp's original profiles (Potato through Extreme) are untouched and still
-available.
+MakeUp's own profiles are untouched and still available from the profile menu:
+*No effects*, *Shadowless Low / Medium / High*, *Low*, *Medium*, *High* and
+*High (DoF)*.
+
+## Climbing toward BSL-level graphics
+
+The default is a floor, not a ceiling. Every effect BSL is known for is present in
+this pack - it is MakeUp's tree, nothing was removed - and each one can be switched
+back on from the pack's settings. Below is the order to do it in, cheapest first,
+so your i3 keeps up as long as possible.
+
+| Step | Switch on | Where | What it buys | What it costs |
+| --- | --- | --- | --- | --- |
+| 1 | `AO`, `AOSTEPS` 3 | Advanced options > Ambient occlusion | Contact shadow in corners and under overhangs; the cheapest thing that reads as depth | 3 depth taps per pixel (the slider goes 2-11) |
+| 2 | `V_CLOUDS` 1 (static), `CLOUD_STEPS_AVG` 7 | Advanced options > Sun & clouds | Real layered volumetric clouds instead of vanilla billboards - the single biggest visual jump in the pack | A raymarch per sky pixel, 7 steps. Setting 2 lets the clouds change shape and costs more |
+| 3 | `REFLECTION_SLIDER` 1 in Light, `SUN_REFLECTION` in Sun & clouds | Advanced options | Water mirrors the sky and the sun glints on it | A flipped copy of the frame, one fetch per water pixel. Setting 2 is true screen-space raymarching and costs much more |
+| 4 | `AA_TYPE` 2 | Advanced options > Post effects | Smooths foliage edges and the volumetric clouds; the thing most people mean by "looks clean" | History buffer plus a full-screen resolve |
+| 5 | `SHADOW_CASTING`, `SHADOW_QTY_SLIDER` 1, `SHADOW_DISTANCE_SLIDER` 0, `COLORED_SHADOW` off | Advanced options > Shadows | Sun shadows, and light shafts become possible | A second scene render - 300² of shadow map at 75 blocks with these two sliders, which is the cheapest it goes |
+| 6 | `VOL_LIGHT` in Light, `BLOOM` in Post effects | Advanced options | Visible sun beams through foliage, and glow on lights | Full-screen passes at the end of the frame |
+
+How to use it: turn on **one** step, play for a few minutes in the scene you care
+about, and keep it only if the framerate stays where you want it. Do not enable two
+at once; on an integrated GPU you will not know which one took your frames.
+
+Three shortcuts if you would rather not go switch by switch:
+
+- **`shadowless_medium`** is about steps 1-3 in one click - the best-looking
+  configuration that does not pay for a shadow pass.
+- **`medium`** is about steps 1-5: the full BSL-style look, shadow pass included.
+- **`high`** is everything in that table, plus coloured shadows, cloud reflections
+  and gloss.
+
+If you try only one thing, make it step 2. Clouds and sky are what the eye reads as
+"a shader is running", and they cost less than shadows.
 
 ## Install
 
