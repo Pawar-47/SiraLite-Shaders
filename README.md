@@ -19,7 +19,7 @@ project skeleton. See [CREDITS.md](CREDITS.md) for exactly what came from where.
 | Question | Answer |
 | --- | --- |
 | Is this a real, complete shader pack? | Yes. Every program the pack ships is implemented; there are no stubs and no placeholder code. |
-| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, publishes `siralite-shaders-1.5.0-shaderpack.zip` as a **GitHub release**, and attaches the same zip to the workflow run. Releases are additive: earlier versions stay published. See [Verification](#verification). |
+| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, publishes `siralite-shaders-1.6.0-shaderpack.zip` as a **GitHub release**, and attaches the same zip to the workflow run. Releases are additive: earlier versions stay published. See [Verification](#verification). |
 | Has it been compiled and run in Minecraft? | **No.** It was written in an environment with no GPU and no Minecraft. Packaging is verified; GPU compilation and appearance are not. |
 | Why is the release zip only about 24 KB? | Because the pack is pure GLSL - about 1,300 lines of source and not one image. See [Why the release is so small](#why-the-release-is-so-small). |
 | Are there FPS numbers? | **No, and there will not be any invented ones.** Everything below labelled as an optimisation is a code-level property you can check by reading the file, not a measurement. |
@@ -138,9 +138,31 @@ Copy that zip into `shaderpacks/` exactly as above.
 
 ## Presets
 
-Three profiles ship with the pack, selectable with the profile button in
-**Shader Pack Settings**. The default values in the shader source are exactly the
-first preset, so a fresh install is already on **Ultra Performance**.
+Four profiles ship with the pack, selectable with the profile button in
+**Shader Pack Settings**. The default values in the shader source are exactly
+**Ultra Performance**, so a fresh install already runs it.
+
+| Profile | For | What changes |
+| --- | --- | --- |
+| Potato | The weakest machines | No post pass, no shadow pass, no reflections, no motion. Terrain lighting, sky and shaded clouds only |
+| Ultra Performance (default) | Best frames while still looking like a shader pack | The full pack minus shadows, bloom and waves |
+| Balanced | A GPU that can afford a shadow pass | Hard shadows, water waves, vignette |
+| Visual Performance | The best this pack gets inside the same budget | Soft shadows, bloom, stronger water and colour |
+
+### Preset 0 - Potato
+
+The floor, for a machine that is struggling. It removes the entire post pass, the
+shadow pass, the water reflection and all vertex motion, and keeps the two things
+that cost nearly nothing and still look better than vanilla: the tinted light
+model and shaded clouds.
+
+| | |
+| --- | --- |
+| Shadows | Off, no shadow pass |
+| Post pass | Off entirely (`POST_PROCESSING` off) |
+| Water | Plain blended water, no reflection, no depth tinting |
+| Vegetation | Static |
+| Pixel cost on terrain | 1 texture fetch, 1 lightmap fetch, arithmetic |
 
 ### Preset 1 - Ultra Performance (default)
 
@@ -152,7 +174,7 @@ Maximum FPS. No shadow pass at all, no extra fetches, no extra passes.
 | Post processing | One pass: one scene fetch, one depth fetch. Switch `POST_PROCESSING` off to remove that pass entirely. |
 | Water | Tinted lighting plus a cheap analytic sky reflection at 15%, and a sun glint. No shimmer. |
 | Vegetation | Grass, leaves and the water surface sway; grass and leaves get richer colour. Vertex cost only, so it stays on. |
-| Clouds and sky | Vanilla cloud shapes, graded by time of day and given a silver lining, plus a warm sun glare. |
+| Clouds and sky | Vanilla cloud shapes, shaded by height inside the slab, faded with distance, given a silver lining and a warm sun glare. |
 | Sky / fog / grade | On - these are arithmetic only and are the pack's look. |
 | Pixel cost on terrain | 1 texture fetch, 1 lightmap fetch, arithmetic |
 
@@ -308,6 +330,11 @@ Two things worth stating plainly:
   that clause and is not published. The licence text is quoted in
   [docs/RESEARCH.md](docs/RESEARCH.md), and the practical answer is better anyway:
   Complementary ships its own **Potato** profile, built by its author.
+- **Complementary Unbound was then downloaded and opened** (1.6.0): the release
+  file from Modrinth, plus its public source repository, file by file. Its
+  profile ladder and its cloud-slab height shading became this pack's Potato
+  profile and its cloud shading. Every note, and every technique deliberately
+  not taken, is in [docs/RESEARCH.md](docs/RESEARCH.md).
 
 ## Performance: what was actually optimised
 

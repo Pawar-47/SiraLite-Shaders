@@ -43,6 +43,18 @@ void main() {
 	towardSun *= towardSun;
 	albedo.rgb += vec3(1.0, 0.86, 0.66) * towardSun *
 	              (0.10 + 0.30 * horizon + 0.06 * day);
+
+	/* Vanilla clouds are flat slabs at y=192, so the only shape a shader can
+	   read is where a fragment sits inside the slab: the top catches the sky,
+	   the base sits in the shadow of the cloud above it. This is what makes
+	   blocky clouds read as thick without any volumetric work. */
+	vec3 worldPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+	float height = worldPos.y + cameraPosition.y;
+	float layerHeight = clamp((height - 191.85) * 0.25, 0.0, 1.0);
+	albedo.rgb *= 0.72 + 0.55 * layerHeight;
+
+	// And a distance fade, so the cloud layer does not end in a hard line.
+	albedo.a *= clamp((320.0 - length(worldPos.xz)) * 0.01, 0.0, 1.0);
 #endif
 
 	color = albedo;
