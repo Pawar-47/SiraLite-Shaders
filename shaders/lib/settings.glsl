@@ -36,6 +36,7 @@ const float entityShadowDistanceMul = 0.25; // [0.125 0.25 0.5 1.0] How far away
 #define CONTRAST 1.05 // [0.95 1.0 1.05 1.1 1.15] Contrast around mid grey
 #define SUNSET_STRENGTH 1.0 // [0.5 0.75 1.0 1.25 1.5] Warmth of sunrise and sunset
 #define NIGHT_BRIGHTNESS 1.0 // [0.8 0.9 1.0 1.1 1.2] Night time light level
+#define COLOR_WARMTH 0.5 // [0.0 0.25 0.5 0.75 1.0] Colour balance: 0 is cool and blue, 0.5 neutral, 1 warm and golden
 
 /* ------------------------------------------------------------------ *
  *  ATMOSPHERE
@@ -43,7 +44,6 @@ const float entityShadowDistanceMul = 0.25; // [0.125 0.25 0.5 1.0] How far away
 
 #define FOG_DENSITY 1.0 // [0.6 0.8 1.0 1.2 1.4] Distance fog density
 #define CLOUD_SHADING // Grade the clouds by time of day: white by day, blue-grey at night, warm at the horizon
-#define SKY_CIRRUS // Thin high cloud streaks in the sky. Four sine calls on sky pixels only
 #define SUN_GLARE // Warm glare around the sun's screen position, over clean sky only
 
 /* ------------------------------------------------------------------ *

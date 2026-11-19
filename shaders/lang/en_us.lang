@@ -1,12 +1,10 @@
 profile.comment=Ultra Performance (default) / Balanced / Visual Performance. Pick the preset that fits your PC, then fine tune below.
 
 screen.PERFORMANCE=Performance
-screen.LIGHTING=Lighting and Colour
-screen.ATMOSPHERE=Atmosphere
-screen.VEGETATION=Vegetation
-screen.WATER=Water
+screen.LIGHTING=Lighting
 screen.SHADOWS=Shadows
-screen.POST=Post Processing
+screen.RAYTRACING=Ray Tracing
+screen.COLOUR=Colour Settings
 
 option.POST_PROCESSING=Post Processing Pass
 option.POST_PROCESSING.comment=The full-screen pass that draws distance fog, the colour grade and the underwater tint. Turning it off removes an entire pass: terrain lighting, sky and water still look better than vanilla, but fog and grading are gone. The second biggest FPS lever after shadows.
@@ -62,6 +60,9 @@ option.CONTRAST.comment=Contrast around mid grey.
 option.SUNSET_STRENGTH=Sunset Warmth
 option.SUNSET_STRENGTH.comment=How warm sunrise and sunset colours are, in the sky, the fog and the light tint.
 
+option.COLOR_WARMTH=Colour Balance
+option.COLOR_WARMTH.comment=0 is cool and blue, 0.5 is neutral, 1 is warm and golden. One number for the whole image.
+
 option.NIGHT_BRIGHTNESS=Night Brightness
 option.NIGHT_BRIGHTNESS.comment=Light level of moonlit and unlit areas after dark.
 
@@ -71,8 +72,8 @@ option.FOG_DENSITY.comment=Higher pulls the distance fog closer, lower pushes it
 option.CLOUD_SHADING=Cloud Shading
 option.CLOUD_SHADING.comment=Grades vanilla's cloud shapes by time of day: white by day, blue-grey at night, warm underneath at sunrise and sunset. Costs a handful of arithmetic on cloud pixels only.
 
-option.SKY_CIRRUS=High Cirrus
-option.SKY_CIRRUS.comment=Thin high cloud streaks over the sky, sliding as you move. Four sine calls on sky pixels only.
+option.SSAO=Ambient Occlusion
+option.SSAO.comment=Depth only contact shadows in grooves and corners. A short screen space march: four extra depth reads and five depth linearisations per pixel.
 
 option.SUN_GLARE=Sun Glare
 option.SUN_GLARE.comment=Warm glare around the sun's position on screen, strongest at sunrise and sunset. Only drawn over clean sky, so it never haloes a mountain.
@@ -97,6 +98,3 @@ option.BLOOM.comment=Bright pass glow. Four extra fetches of the scene buffer at
 
 option.VIGNETTE=Vignette
 option.VIGNETTE.comment=Darkens the corners of the screen.
-
-option.SSAO=Ambient Occlusion
-option.SSAO.comment=Depth only contact shadows in grooves and corners. Four extra depth fetches and five depth linearisations per pixel.

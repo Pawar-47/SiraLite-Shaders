@@ -115,3 +115,40 @@ reimplemented in this repository's own code; where a specific constant was
 adopted (the two shadow constants), that is stated here. If any author of the
 packs above believes something here is too close to their work, open an issue
 and it will be changed or credited.
+
+
+## Complementary Shaders: what its licence actually permits
+
+Complementary Unbound is the most downloaded shader pack on Modrinth (about
+48 million downloads) and its agreement is available:
+<https://github.com/ComplementaryDevelopment/ComplementaryShadersV4/blob/main/License.txt>
+("Complementary Agreement 1.3").
+
+It is more permissive than "All Rights Reserved", but narrower than it looks:
+
+- Section 1.3 **does allow** redistributing a *Modified Pack*, with conditions:
+  visible credit, the unmodified agreement file kept inside, no "Complementary"
+  in the name and at least three characters of difference from it, and
+  critically 1.3(d): the modified pack
+  > must look noticeably different from The Pack in multiple common gameplay
+  > scenarios that must include daytime overworld visuals, regardless of the
+  > setting or variable changes in the Modified Pack and/or The Pack.
+
+A "stripped for my PC" copy fails 1.3(d) by construction: turning effects off to
+gain frames leaves the look the same or worse in daytime overworld, which is
+exactly the case the clause excludes. So no stripped Complementary is published
+here, and none of its code is in this repository.
+
+There is also a practical blocker independent of the licence: a Modrinth release
+is a zip, and this toolchain has no way to unzip one, so the pack could not have
+been read file by file even if redistribution had been allowed.
+
+The better answer for a slow machine is not a fork at all: Complementary ships
+its own **Potato** profile (the project describes profiles "ranging from Potato
+to Ultra"). Loading Complementary Unbound and selecting Potato gives the author's
+own low-end configuration, with their tuning and their support, which no strip of
+mine would match.
+
+That is why this project's answer to "make it fit my PC" is its own three
+profiles plus the per-effect switches above, rather than a modified copy of
+somebody else's pack.

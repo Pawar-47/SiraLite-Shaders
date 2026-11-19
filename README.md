@@ -19,7 +19,7 @@ project skeleton. See [CREDITS.md](CREDITS.md) for exactly what came from where.
 | Question | Answer |
 | --- | --- |
 | Is this a real, complete shader pack? | Yes. Every program the pack ships is implemented; there are no stubs and no placeholder code. |
-| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, publishes `siralite-shaders-1.4.0-shaderpack.zip` as a **GitHub release**, and attaches the same zip to the workflow run. Releases are additive: earlier versions stay published. See [Verification](#verification). |
+| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, publishes `siralite-shaders-1.5.0-shaderpack.zip` as a **GitHub release**, and attaches the same zip to the workflow run. Releases are additive: earlier versions stay published. See [Verification](#verification). |
 | Has it been compiled and run in Minecraft? | **No.** It was written in an environment with no GPU and no Minecraft. Packaging is verified; GPU compilation and appearance are not. |
 | Why is the release zip only about 24 KB? | Because the pack is pure GLSL - about 1,300 lines of source and not one image. See [Why the release is so small](#why-the-release-is-so-small). |
 | Are there FPS numbers? | **No, and there will not be any invented ones.** Everything below labelled as an optimisation is a code-level property you can check by reading the file, not a measurement. |
@@ -152,7 +152,7 @@ Maximum FPS. No shadow pass at all, no extra fetches, no extra passes.
 | Post processing | One pass: one scene fetch, one depth fetch. Switch `POST_PROCESSING` off to remove that pass entirely. |
 | Water | Tinted lighting plus a cheap analytic sky reflection at 15%, and a sun glint. No shimmer. |
 | Vegetation | Grass, leaves and the water surface sway; grass and leaves get richer colour. Vertex cost only, so it stays on. |
-| Clouds and sky | Vanilla cloud shapes, graded by time of day, plus high cirrus and a warm sun glare. |
+| Clouds and sky | Vanilla cloud shapes, graded by time of day and given a silver lining, plus a warm sun glare. |
 | Sky / fog / grade | On - these are arithmetic only and are the pack's look. |
 | Pixel cost on terrain | 1 texture fetch, 1 lightmap fetch, arithmetic |
 
@@ -186,7 +186,15 @@ default; it can be switched on in **Post Processing**.
 ## Configuration
 
 All options live in `shaders/lib/settings.glsl` and are shown in **Shader Pack
-Settings** with a label and tooltip from `shaders/lang/en_us.lang`.
+Settings** with a label and tooltip from `shaders/lang/en_us.lang`. They are
+grouped the way players look for them: **Lighting**, **Shadows**,
+**Ray Tracing**, **Colour Settings** and **Performance**.
+
+The Ray Tracing screen is honest about its name: there is no ray tracing in this
+pack. It groups the light-transport approximations that exist - the analytic sky
+reflection on water, the sun glint, water depth, underwater caustics, the sun
+glare and the depth-only ambient occlusion, which is the one genuine
+screen-space march in the pack.
 
 | Option | Default | What it does |
 | --- | --- | --- |
@@ -200,11 +208,11 @@ Settings** with a label and tooltip from `shaders/lang/en_us.lang`.
 | `EXPOSURE` | `1.0` | Overall brightness multiplier, after lighting |
 | `SATURATION` | `1.08` | Colour saturation around each pixel's brightness |
 | `CONTRAST` | `1.05` | Contrast around mid grey |
+| `COLOR_WARMTH` | `0.5` | Colour balance: 0 cool and blue, 0.5 neutral, 1 warm and golden |
 | `SUNSET_STRENGTH` | `1.0` | Warmth of sunrise and sunset in sky, fog and light tint |
 | `NIGHT_BRIGHTNESS` | `1.0` | Light level after dark |
 | `FOG_DENSITY` | `1.0` | How close the distance fog starts |
 | `CLOUD_SHADING` | on | Grade vanilla's cloud shapes by time of day and sunset warmth |
-| `SKY_CIRRUS` | on | Thin high cloud streaks over the sky (sky pixels only) |
 | `SUN_GLARE` | on | Warm glare around the sun, strongest when it is low |
 | `WAVING_PLANTS` | on | Grass, flowers, crops and leaves sway in the wind (vertex stage only) |
 | `WAVING_WATER` | on | The water surface moves up and down (vertex stage only) |
@@ -292,6 +300,14 @@ Two things worth stating plainly:
   not forgotten: screen-space reflections, multiple G-buffer targets, TAA,
   volumetric clouds, depth of field, motion blur. Each of them costs more per
   frame than this pack's entire budget on an older i3 with integrated graphics.
+- **Why there is no "stripped Complementary" build here.** The Complementary
+  Agreement (1.3) does allow a modified pack to be redistributed, but only if it
+  "must look noticeably different from The Pack in multiple common gameplay
+  scenarios that must include daytime overworld visuals". A copy of Complementary
+  with effects turned off for speed is the *same* look by definition, so it fails
+  that clause and is not published. The licence text is quoted in
+  [docs/RESEARCH.md](docs/RESEARCH.md), and the practical answer is better anyway:
+  Complementary ships its own **Potato** profile, built by its author.
 
 ## Performance: what was actually optimised
 
@@ -430,10 +446,11 @@ There is deliberately **no** `deferred.*`: its absence removes a full-screen cop
 - **Ambient occlusion is depth-only.** It is a four-tap contact shadow with no
   normal-aware half-sphere sampling, so it darkens grooves and not much else. It
   is off by default and cannot be verified from here.
-- **Clouds keep vanilla's shapes.** The pack grades their colour and adds cirrus
-  above them; it does not generate volumetric clouds, so the blocky silhouettes
-  are vanilla's. Volumetric clouds cost more per frame than this pack's entire
-  budget, and every attempt to fake them cheaply looks worse than vanilla.
+- **Clouds keep vanilla's shapes.** The pack grades their colour and blends them
+  toward the horizon colour; it does not generate volumetric clouds, so the
+  blocky silhouettes are vanilla's. Volumetric clouds cost more per frame than
+  this pack's entire budget. An earlier attempt to paint procedural cirrus into
+  the sky was removed in 1.5.0 because it read as an artifact, not as cloud.
 - **Nights are dark.** `NIGHT_BRIGHTNESS` exists because the pack follows
   vanilla's lightmap; raise it if the game is unplayable for you.
 - **The `pack_format` in `pack.mcmeta` is cosmetic.** Iris reads the zip, not the

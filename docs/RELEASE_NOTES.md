@@ -1,37 +1,47 @@
-# SiraLite Shaders 1.4.0
+# SiraLite Shaders 1.5.0
 
-Dimensions, clouds that belong to the sky, and a usable torch. This release came
-out of reading the openly licensed packs published on Modrinth - see
-`docs/RESEARCH.md` for exactly what was studied, adopted and rejected, and why
-no third party pack is redistributed here.
+## Fixed
+
+- **The cloud-like artifact in the sky is gone.** It was the experimental high
+  cirrus layer added in 1.3.0: a sine pattern projected by `dir.xz / dir.y`,
+  which bunches up into streaks near the horizon and reads as a smear rather than
+  as cloud. The layer and its option are removed. The sky is now exactly one
+  analytic gradient plus the sun and moon: nothing in it can look like a shape
+  that is not there.
+
+## Settings reorganized
+
+The option screens now follow the five groups players actually look for:
+
+- **Lighting** - brightness, night level, sunset warmth, fog, cloud shading,
+  handheld light, dimension tuning
+- **Shadows** - quality, resolution, distance, interval, entity shadow distance,
+  strength
+- **Ray Tracing** - water reflections and strength, water waves, water depth,
+  underwater caustics, sun glare, ambient occlusion. Named plainly: this pack has
+  no ray tracing. The screen gathers the light-transport approximations, and the
+  ambient occlusion is the one real screen-space march in the pack.
+- **Colour Settings** - saturation, contrast, colour balance, vignette
+- **Performance** - the post pass switch, bloom, waving plants and water, wave
+  strength, vegetation polish
 
 ## New
 
-- **Dimension tuning.** The Nether now gets warm light and thick haze, the End
-  cool light and clear air, instead of both looking like the Overworld at night.
-  Done by branching on `hasSkylight` and `hasCeiling`, so there is no duplicated
-  program for each dimension.
-- **Clouds in the atmosphere.** Cloud colour is pulled 35% toward the horizon
-  colour, so clouds sit in the air instead of looking pasted on the sky, and a
-  silver lining appears where a cloud faces the sun or moon, strongest at
-  sunrise and sunset.
-- **Handheld light.** A torch or lantern in your hand lights the ground around
-  you within 13 blocks. Carrying nothing costs one comparison.
-- **Torch light that deepens with distance.** Warm white close to the source,
-  orange across the room, from the block light level.
-- **Two new shadow controls**, both adopted from an established pack's approach:
-  `entityShadowDistanceMul` (entities only cast shadows near you, which removes
-  most entity geometry from the shadow pass) and `shadowIntervalSize` (softer
-  banding on a 1024 shadow map).
+- **Colour Balance** (`COLOR_WARMTH`, default 0.5): one number from cool and blue
+  through neutral to warm and golden, replacing the fixed warm/cool split.
 
-## Unchanged guarantees
+## About stripping Complementary Unbound
 
-- Ultra Performance stays the default: no shadow pass, one post pass, two
-  texture fetches per terrain pixel.
-- Every effect has an option and can be switched off on its own.
+It was asked for, and it was checked. The Complementary Agreement 1.3 does permit
+redistributing a modified pack, but 1.3(d) requires the modified pack to "look
+noticeably different ... in multiple common gameplay scenarios that must include
+daytime overworld visuals". A copy with effects disabled for performance is the
+same look, so it fails that clause and is not published. Use Complementary
+Unbound's own **Potato** profile instead - that is the author's low-end
+configuration. The full reasoning and the quoted clause are in
+`docs/RESEARCH.md`.
 
 ## Upgrade policy
 
-Releases are additive. Publishing this version creates a new release and leaves
-the previous ones, and their downloads, untouched: nothing is deleted or
-retagged.
+Releases are additive. This release is new; v1.4.0, v1.3.0 and v1.2.0 stay
+published with their downloads untouched.

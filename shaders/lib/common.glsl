@@ -111,24 +111,6 @@ vec3 skyGradient(vec3 dir) {
 	return max(col, vec3(0.0));
 }
 
-/* Thin high cloud, for the sky program only. The ray is projected onto a fixed
-   altitude so the pattern slides past as you move, and the two-tone stretch
-   reads as streaks rather than blobs. No texture, no hash, four sine calls. */
-float cirrusDensity(vec3 dir) {
-	if (dir.y < 0.06) {
-		return 0.0;
-	}
-
-	vec2 p = clamp(dir.xz / dir.y, vec2(-40.0), vec2(40.0)) * vec2(0.5, 1.5);
-	p += vec2(frameTimeCounter * 0.004, frameTimeCounter * 0.0015);
-
-	float n = sin(p.x * 1.3 + sin(p.y * 2.1)) + sin(p.y * 0.8 - sin(p.x * 1.7) * 0.8);
-	float density = smoothstep(0.6, 1.3, n);
-
-	// Fade out at the horizon, where the pattern would alias into noise.
-	return density * smoothstep(0.06, 0.30, dir.y);
-}
-
 /* Colour grade, done in gamma space on purpose: staying in the buffer's own
    space saves three pow() calls per pixel, which is real time on integrated
    graphics. The buffer is 8 bit, so there is no HDR range to lose. */
@@ -140,8 +122,9 @@ vec3 gradeColor(vec3 c) {
 	c = mix(c, c * c * (3.0 - 2.0 * c), 0.18); // gentle filmic S-curve
 	c = mix(vec3(0.5), c, CONTRAST);
 
-	// Warm highlights, cool shadows.
-	c *= mix(vec3(0.975, 0.99, 1.03), vec3(1.03, 1.005, 0.975), clamp(l * 1.4, 0.0, 1.0));
+	/* Colour balance: 0.5 is neutral, below it cools the image, above it warms
+	   it. A fixed warm/cool split was worse: this one the user can aim. */
+	c *= mix(vec3(0.95, 0.99, 1.06), vec3(1.06, 1.0, 0.94), clamp(COLOR_WARMTH, 0.0, 1.0));
 
 	return clamp(c, 0.0, 1.0);
 }
