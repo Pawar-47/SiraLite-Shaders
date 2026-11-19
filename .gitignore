@@ -22,3 +22,9 @@ replay_*.log
 *.hprof
 *.jfr
 
+
+
+# Third-party reference shader packs are kept on disk for study and tuning, not
+# committed: Ref/ is MakeUp - Ultra Fast (LGPL-3.0), not part of this MIT
+# project's own sources, and it ships its own textures.
+Ref/
