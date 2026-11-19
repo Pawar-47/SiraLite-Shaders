@@ -27,8 +27,11 @@ deleted or rewritten:
 - The shader logic is upstream's, unchanged.
 - What changed is `shaders/lib/config.glsl` (default values) and
   `shaders/shaders.properties` (three profiles, and two passes made conditional).
-- The unmodified original sits in `Ref/` so you can diff against it, and
-  [Ref/OPTIMIZED.md](Ref/OPTIMIZED.md) records why each value was chosen.
+- `Ref/` keeps the copy of MakeUp the tuning was done against. Only
+  [Ref/OPTIMIZED.md](Ref/OPTIMIZED.md) and the two files that set the values
+  (`Ref/shaders/shaders.properties`, `Ref/shaders/lib/config.glsl`) are tracked, so
+  the reasoning behind every value is reviewable without the whole third-party pack
+  in the repository.
 
 ## Hardware target
 

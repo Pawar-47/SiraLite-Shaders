@@ -58,4 +58,4 @@ the build, the checks, the docs, the previous 1.x pack - remains MIT.
 Nobody has run this on a GPU here, so no framerate numbers are claimed. The profile
 is a single line in `shaders/shaders.properties`, its values come from the pack's
 own option list and its shadow-resolution table in `shaders/lib/config.glsl`, and
-the unmodified upstream pack is in `Ref/` to diff against.
+every one of them is a token you can change from the Advanced options screen.

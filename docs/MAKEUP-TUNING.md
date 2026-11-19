@@ -5,10 +5,11 @@ License v3.0, by Javier Garduño) to its cheapest configuration for an older
 Intel Core i3 with 12 GB of RAM and integrated graphics, and then reading its
 code to find out what was left to cut.
 
-That pack is not redistributed here and is not part of this project: it lives in
-a local `Ref/` folder which `.gitignore` keeps out of the repository, because the
-two projects have different licences. Only the method and the findings are
-recorded here. The pack itself:
+That pack is what this repository now ships: `shaders/` is MakeUp - Ultra Fast
+v9.6 under the LGPL-3.0-or-later, with the reductions below already applied and
+listed in `NOTICE.md`. The reference copy they were made against is in `Ref/`,
+which `.gitignore` keeps out of the repository apart from the two files that set
+the values and these notes. The pack itself:
 <https://modrinth.com/shader/makeup-ultra-fast-shaders> and
 <https://github.com/javiergcim/MakeUpUltraFast>.
 
