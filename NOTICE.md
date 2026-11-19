@@ -36,7 +36,11 @@ was changed and when:
    made conditional so those passes are skipped when bloom, depth of field,
    antialiasing and motion blur are all off. All of the pack's own profiles are
    unchanged.
-3. Nothing else. No shader logic was rewritten, no file was removed, and no
+3. `shaders/shaders.properties` and `shaders/lang/*.lang` (2.1.0) - a third profile,
+   `BSL_INSPIRED`, which switches every effect the tuned defaults leave off back on
+   at once, plus a label for it in each of the nine shipped languages. The pack's
+   own profiles and its option code are untouched.
+4. Nothing else. No shader logic was rewritten, no file was removed, and no
    texture was altered.
 
 The unmodified upstream copy this was taken from is kept in `Ref/` for comparison,

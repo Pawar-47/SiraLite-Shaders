@@ -1,47 +1,61 @@
-# SiraLite Shaders 2.0.0
+# SiraLite Shaders 2.1.0
 
-The project now ships **MakeUp - Ultra Fast v9.6**, ported in completely and
-tuned for a Core i3 with integrated graphics. The previous independently written
-pack (SiraLite 1.x) is kept in `legacy/siralite-shaders/` and its builds remain on
-the releases page.
+A BSL-inspired preset, in the same pack. No shader logic was touched, no file was
+removed, and the shipped defaults are still the cheapest configuration of the pack:
+if you never open the profile menu, 2.1.0 behaves exactly like 2.0.0.
 
-## What changed
+## What is new
 
-- **Complete port.** `shaders/` is MakeUp's full tree: every program, every
-  per-dimension folder, both texture sets, the volumetric clouds, the reflection
-  code, the works. Nothing was stubbed or removed.
-- **Tuned defaults.** Shadows, volumetric clouds and their reflections, raymarched
-  reflections, TAA, bloom, ambient occlusion, godrays, material gloss, refraction
-  and sun reflection are off by default; the sampling counts for what remains are
-  at their cheapest values. `Ref/OPTIMIZED.md` lists every value.
-- **Two profiles added** on top of MakeUp's own ladder: `MAX_FPS` (the default
-  state) and `MAX_FPS_NOFOG` (also drops the distance fog, which removes one
-  full-screen fetch per block pixel at the cost of chunks popping).
-- **Two passes skipped** when nothing in them can run: `composite1` (bloom and
-  depth of field only) and `composite2` (antialiasing and motion blur only).
+- **`BSL_INSPIRED` profile.** The look a BSL-class pack gives you, assembled from
+  MakeUp's own implementations of the same effects and switched on in one click:
+  sun shadows at 840² over 105 blocks, coloured shadows, volumetric clouds with
+  water and End reflection, volumetric light, bloom, TAA, ambient occlusion at 5
+  samples, water refraction, sun glint on water and glass, flipped-image water
+  reflection, material gloss, waving, and a warm colour grade.
+- **Labelled in all nine languages** the pack ships, so the entry reads properly
+  whichever language Iris runs in.
+- **Three profiles at the ends of the range now:** `MAX_FPS` (default, everything
+  off), `MAX_FPS_NOFOG` (that, plus distance fog off) and `BSL_INSPIRED`
+  (everything on). MakeUp's own ladder - No effects through High (DoF) - is
+  unchanged.
 
-## Licence
+## Why a preset and not BSL itself
 
-`shaders/` is **LGPL-3.0-or-later**, because it is a modified version of MakeUp.
-The licence text ships with the pack (`LICENSE-LGPL-3.0.txt`), and
-[NOTICE.md](../NOTICE.md) lists the changes and their date as the LGPL requires.
-Everything else in the repository - the build, the checks, the docs, and the
-previous 1.x pack - remains MIT.
+BSL Shaders is All Rights Reserved, so this repository cannot ship, modify and
+publish it. What it can publish is the LGPL base it already carries: MakeUp has its
+own sun and moon reflection, volumetric clouds, volumetric light, coloured shadows
+and TAA. `BSL_INSPIRED` switches those on together, at values chosen to be
+survivable rather than maximal.
 
-If you were using SiraLite 1.x under MIT and do not want an LGPL pack, the old
-sources are in `legacy/siralite-shaders/` and the v1.x releases are untouched.
+## What it costs
+
+Shadows are a second scene render; the volumetric clouds raymarch per sky pixel and
+their reflection adds a second cloud render; TAA adds a history buffer and a
+full-screen resolve; bloom and volumetric light are extra passes. Deliberately left
+off in this preset: reflection raymarching (`REFLECTION_SLIDER` 2), dynamic clouds
+(`V_CLOUDS` 2), depth of field, motion blur, and MakeUp's higher shadow resolutions.
+Each is one slider on the Advanced options screen.
+
+If it is too slow, set the profile back to `MAX_FPS` and switch effects on one at a
+time - the README has the order, cheapest first.
 
 ## Install
 
 1. Fabric Loader for Minecraft 1.21.5, plus Iris 1.8.x (Sodium recommended).
-2. Drop `siralite-shaders-2.0.0-shaderpack.zip` into `shaderpacks/`. Do not
-   unzip it.
-3. Options > Video Settings > Shader Packs > apply the pack, then open its
-   settings and confirm the profile is **MAX_FPS**.
+2. Drop `siralite-shaders-2.1.0-shaderpack.zip` into `shaderpacks/`. Do not unzip.
+3. Options > Video Settings > Shader Packs > apply the pack, open its settings, and
+   pick **BSL Inspired** in the profile menu.
+
+## Licence
+
+Unchanged: `shaders/` is **LGPL-3.0-or-later**, because it is a modified version of
+MakeUp - Ultra Fast v9.6 by Javier Garduño. The licence text ships in the zip, and
+`NOTICE.md` lists every change with its date. Everything else in the repository -
+the build, the checks, the docs, the previous 1.x pack - remains MIT.
 
 ## Honest note
 
-The tuning is grounded in reading the code, not in measurement: nobody has run
-this on a GPU here, and no framerate numbers are claimed. If something looks
-wrong, every change is a single value in `shaders/lib/config.glsl`, and the
-unmodified original is in `Ref/` to diff against.
+Nobody has run this on a GPU here, so no framerate numbers are claimed. The profile
+is a single line in `shaders/shaders.properties`, its values come from the pack's
+own option list and its shadow-resolution table in `shaders/lib/config.glsl`, and
+the unmodified upstream pack is in `Ref/` to diff against.

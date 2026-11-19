@@ -21,12 +21,12 @@ date, as the LGPL requires. [CREDITS.md](CREDITS.md) says who made what.
 
 MakeUp's complete pack - every program, every per-dimension folder, its clouds,
 water, reflections, TAA, glow and texture sets - with its defaults retuned for
-weak hardware, plus two profiles for the same purpose. Nothing was stubbed,
+weak hardware, plus three profiles for the same purpose. Nothing was stubbed,
 deleted or rewritten:
 
 - The shader logic is upstream's, unchanged.
 - What changed is `shaders/lib/config.glsl` (default values) and
-  `shaders/shaders.properties` (two profiles, and two passes made conditional).
+  `shaders/shaders.properties` (three profiles, and two passes made conditional).
 - The unmodified original sits in `Ref/` so you can diff against it, and
   [Ref/OPTIMIZED.md](Ref/OPTIMIZED.md) records why each value was chosen.
 
@@ -53,13 +53,20 @@ The shipped defaults are the cheapest configuration of the pack:
 With those gone the pack still has its sky, its grade, its water shape, its fog
 and its waving foliage, and runs as four full-screen passes.
 
-Two profiles are added above MakeUp's own ladder:
+Three profiles are added above MakeUp's own ladder:
 
 - **`MAX_FPS`** - restores the configuration above in one click.
 - **`MAX_FPS_NOFOG`** - the same, plus distance fog off. That removes one
   full-screen texture fetch from every block pixel, the last real per-pixel saving
   in the pack. It costs the haze that hides the edge of your render distance, so
   compare before choosing.
+- **`BSL_INSPIRED`** - the other end of the range: shadows at 840² over 105
+  blocks, coloured shadows, volumetric clouds reflected in water and drawn in the
+  End, volumetric light, bloom, TAA, AO at 5 samples, water refraction and sun
+  glint, flipped-image water reflection, and a warm grade. It is the full
+  BSL-style look in one click, tuned to survive on a mid-range GPU - reflection
+  raymarching is deliberately left off. On integrated graphics expect a real
+  framerate drop; that is what the default profile is for.
 
 MakeUp's own profiles are untouched and still available from the profile menu:
 *No effects*, *Shadowless Low / Medium / High*, *Low*, *Medium*, *High* and
@@ -91,7 +98,9 @@ Three shortcuts if you would rather not go switch by switch:
   configuration that does not pay for a shadow pass.
 - **`medium`** is about steps 1-5: the full BSL-style look, shadow pass included.
 - **`high`** is everything in that table, plus coloured shadows, cloud reflections
-  and gloss.
+  and gloss - at MakeUp's maximum shadow resolution and distance.
+- **`BSL_INSPIRED`** is the same full look tuned to survive on weaker hardware:
+  the effects above at 840² of shadow map over 105 blocks, with a warm grade.
 
 If you try only one thing, make it step 2. Clouds and sky are what the eye reads as
 "a shader is running", and they cost less than shadows.
@@ -103,7 +112,7 @@ If you try only one thing, make it step 2. Clouds and sky are what the eye reads
 1. Install **Fabric** for Minecraft **1.21.5** from the launcher's version manager.
 2. Put **Iris** (and **Sodium**) into that profile's `mods` folder, matching 1.21.5.
 3. Start the game once, then close it.
-4. Copy `siralite-shaders-2.0.0-shaderpack.zip` into `<game directory>/shaderpacks/`.
+4. Copy `siralite-shaders-2.1.0-shaderpack.zip` into `<game directory>/shaderpacks/`.
    Do not unzip it.
 5. Start the game, then **Options > Video Settings > Shader Packs**, select the
    pack and apply it. Open its settings and check the profile reads **MAX_FPS**.

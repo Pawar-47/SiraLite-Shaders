@@ -9,6 +9,7 @@ profile.medium=Medium
 profile.high=High
 profile.extremeplus=High (DoF)
 
+profile.BSL_INSPIRED=BSL Inspired
 profile.comment=The "shadowless" profiles are designed for low-performance machines, disregarding the shadows. Traditional profiles slowly add higher quality shadows and more advanced heavy effects. Please experiment with the available options and find the best combination for you.
 
 #About
