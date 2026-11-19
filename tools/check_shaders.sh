@@ -1,28 +1,38 @@
 #!/usr/bin/env bash
 #
-# Structural checks for the shader sources.
+# Structural checks for a shader pack.
 #
-# The pack in shaders/ is a modified MakeUp - Ultra Fast (LGPL-3.0). Its
-# conventions differ from a hand-written pack: entry points are GLSL 120 and are
-# thin wrappers that include a body from common/, lib/ or src/, and render
-# targets are declared with DRAWBUFFERS comments inside those bodies. The checks
-# below match those conventions.
+# Defaults to the pack this repository ships (shaders/), which is a modified
+# MakeUp - Ultra Fast. Pass a directory to check any other pack locally, for
+# example a tuned copy that must never be committed:
 #
-# These are NOT a GLSL compiler. They cannot tell you whether the pack compiles
-# on a GPU, only whether the files are internally consistent.
+#   bash tools/check_shaders.sh
+#   bash tools/check_shaders.sh Local/bsl
 #
-# Usage: bash tools/check_shaders.sh
+# The checks match the conventions these packs share: entry points are thin
+# wrappers with a #version line that include a body, and conditionals must
+# balance. They are NOT a GLSL compiler: they cannot tell you whether the pack
+# compiles on a GPU, looks right or runs fast.
 
 set -u
 
 cd "$(dirname "$0")/.." || exit 1
 
-fail=0
-sources=$(find shaders -type f \( -name '*.glsl' -o -name '*.fsh' -o -name '*.vsh' \) | sort)
+target="${1:-shaders}"
 
-# 1. Every program entry point starts with a #version directive. This pack
-#    targets GLSL 120, which both OptiFine and Iris accept.
-for f in shaders/*.fsh shaders/*.vsh; do
+if [ ! -d "$target" ]; then
+	echo "ERROR: '$target' is not a directory"
+	exit 1
+fi
+
+echo "Checking $target"
+
+fail=0
+sources=$(find "$target" -type f \( -name '*.glsl' -o -name '*.fsh' -o -name '*.vsh' -o -name '*.csh' \) | sort)
+
+# 1. Every program entry point starts with a #version directive.
+for f in "$target"/*.fsh "$target"/*.vsh "$target"/*.csh; do
+	[ -f "$f" ] || continue
 	first=$(grep -m1 -v '^[[:space:]]*$' "$f")
 	case "$first" in
 		'#version '*) ;;
@@ -33,9 +43,10 @@ for f in shaders/*.fsh shaders/*.vsh; do
 	esac
 done
 
-# 2. Every entry point includes its body: all of them are wrappers in this pack,
-#    so a wrapper with no #include is a file that silently renders nothing.
-for f in shaders/*.fsh shaders/*.vsh; do
+# 2. Every entry point includes its body: in these packs they are all wrappers,
+#    so a wrapper with no #include is a program that silently does nothing.
+for f in "$target"/*.fsh "$target"/*.vsh "$target"/*.csh; do
+	[ -f "$f" ] || continue
 	if ! grep -q '#include "' "$f"; then
 		echo "ERROR $f: no #include; entry points here are wrappers around a body"
 		fail=1
@@ -44,8 +55,8 @@ done
 
 # 3. Preprocessor conditionals must balance in every source file. A missing
 #    #endif is the most common way an edit silently breaks a whole program.
-#    Upstream ships a mix of LF and CRLF files, so trailing \r is stripped
-#    before comparing: "#endif\r" is not "#endif".
+#    Packs ship a mix of LF and CRLF files, so trailing \r is stripped before
+#    comparing: "#endif\r" is not "#endif".
 for f in $sources; do
 	if ! awk -v file="$f" '
 		{ sub(/\r$/, "") }
@@ -68,12 +79,12 @@ for f in $sources; do
 	fi
 done
 
-# 4. Every #include must resolve inside shaders/. A renamed or deleted lib file
+# 4. Every #include must resolve inside the pack. A renamed or deleted lib file
 #    otherwise only shows up as a compile error in game.
 missing=$(grep -h -o '#include "[^"]*"' $sources |
 	sed 's/.*"\(.*\)"/\1/' | sort -u |
 	while read -r inc; do
-		[ -f "shaders$inc" ] || echo "ERROR missing include: $inc"
+		[ -f "$target$inc" ] || echo "ERROR missing include: $inc"
 	done)
 if [ -n "$missing" ]; then
 	echo "$missing"

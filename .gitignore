@@ -43,3 +43,10 @@ Ref/shaders/*
 Ref/shaders/lib/*
 !Ref/shaders/lib/config.glsl
 
+
+
+# Local working copies of third-party packs, tuned for this machine only.
+# Custom/ is BSL Shaders (All Rights Reserved) and Local/ holds its tuned copy;
+# neither may be committed, packaged or released.
+Custom/
+Local/
