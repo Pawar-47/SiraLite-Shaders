@@ -56,7 +56,7 @@ The shipped defaults are the cheapest configuration of the pack:
 With those gone the pack still has its sky, its grade, its water shape, its fog
 and its waving foliage, and runs as four full-screen passes.
 
-Three profiles are added above MakeUp's own ladder:
+Four profiles are added above MakeUp's own ladder:
 
 - **`MAX_FPS`** - restores the configuration above in one click.
 - **`MAX_FPS_NOFOG`** - the same, plus distance fog off. That removes one
@@ -83,10 +83,10 @@ MakeUp's own profiles are untouched and still available from the profile menu:
 
 ## Climbing toward BSL-level graphics
 
-The default is a floor, not a ceiling. Every effect BSL is known for is present in
-this pack - it is MakeUp's tree, nothing was removed - and each one can be switched
-back on from the pack's settings. Below is the order to do it in, cheapest first,
-so your i3 keeps up as long as possible.
+The default is a floor, not a ceiling. Every effect this pack implements - which is
+most of what BSL is known for, but not all of it - can be switched back on from the
+pack's settings. Below is the order to do it in, cheapest first, so your i3 keeps up
+as long as possible.
 
 | Step | Switch on | Where | What it buys | What it costs |
 | --- | --- | --- | --- | --- |
