@@ -69,6 +69,9 @@ option.NIGHT_BRIGHTNESS.comment=Light level of moonlit and unlit areas after dar
 option.FOG_DENSITY=Fog Density
 option.FOG_DENSITY.comment=Higher pulls the distance fog closer, lower pushes it away.
 
+option.ambientOcclusionLevel=Corner Shading
+option.ambientOcclusionLevel.comment=How dark vanilla's baked ambient occlusion gets in corners and along edges. Lower is darker, higher is flatter. It costs nothing either way: the shadows are already in the vertex data.
+
 option.CLOUD_SHADING=Cloud Shading
 option.CLOUD_SHADING.comment=Grades vanilla's cloud shapes by time of day: white by day, blue-grey at night, warm underneath at sunrise and sunset. Costs a handful of arithmetic on cloud pixels only.
 

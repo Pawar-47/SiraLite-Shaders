@@ -43,6 +43,7 @@ const float entityShadowDistanceMul = 0.25; // [0.125 0.25 0.5 1.0] How far away
  * ------------------------------------------------------------------ */
 
 #define FOG_DENSITY 1.0 // [0.6 0.8 1.0 1.2 1.4] Distance fog density
+const float ambientOcclusionLevel = 0.30; // [0.0 0.2 0.3 0.4 0.6 0.8] Vanilla ambient occlusion floor. Lower makes corners darker, higher makes them flatter
 #define CLOUD_SHADING // Grade the clouds by time of day: white by day, blue-grey at night, warm at the horizon
 #define SUN_GLARE // Warm glare around the sun's screen position, over clean sky only
 
