@@ -19,7 +19,7 @@ project skeleton. See [CREDITS.md](CREDITS.md) for exactly what came from where.
 | Question | Answer |
 | --- | --- |
 | Is this a real, complete shader pack? | Yes. Every program the pack ships is implemented; there are no stubs and no placeholder code. |
-| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, publishes `siralite-shaders-1.7.0-shaderpack.zip` as a **GitHub release**, and attaches the same zip to the workflow run. Releases are additive: earlier versions stay published. See [Verification](#verification). |
+| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, publishes `siralite-shaders-1.7.1-shaderpack.zip` as a **GitHub release**, and attaches the same zip to the workflow run. Releases are additive: earlier versions stay published. See [Verification](#verification). |
 | Has it been compiled and run in Minecraft? | **No.** It was written in an environment with no GPU and no Minecraft. Packaging is verified; GPU compilation and appearance are not. |
 | Why is the release zip only about 24 KB? | Because the pack is pure GLSL - about 1,300 lines of source and not one image. See [Why the release is so small](#why-the-release-is-so-small). |
 | Are there FPS numbers? | **No, and there will not be any invented ones.** Everything below labelled as an optimisation is a code-level property you can check by reading the file, not a measurement. |
@@ -336,6 +336,11 @@ Two things worth stating plainly:
   profile ladder and its cloud-slab height shading became this pack's Potato
   profile and its cloud shading. Every note, and every technique deliberately
   not taken, is in [docs/RESEARCH.md](docs/RESEARCH.md).
+- **A second pack was reduced and then read line by line** to find out what was
+  left to cut: MakeUp - Ultra Fast (LGPL-3.0). The method and every finding are in
+  [docs/MAKEUP-TUNING.md](docs/MAKEUP-TUNING.md). That pack is not redistributed
+  here and is kept out of git by `.gitignore`, because the two projects have
+  different licences.
 
 ## Performance: what was actually optimised
 
