@@ -105,8 +105,8 @@ weather density, aurora, specular colour and VoxelMap colour fetch.
 
 The published pack already runs every effect it implements at maximum values -
 that is the `BSL_MAX` profile. Closing the rest of the gap is not a copy job; it is
-seventeen features written from scratch, in this codebase's pipeline, and each one
-touches more than one file:
+thirteen features, spread over the 22 missing files, written from scratch in this
+codebase's pipeline, and each one touches more than one file:
 
 - **Cheap and self-contained:** lens flare (a post pass on the sun position), chunk
   fade (one multiply at the edge of the render distance), world curvature (a vertex
