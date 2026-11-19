@@ -1,16 +1,16 @@
-#version 330 compatibility
+#version 120
+#extension GL_ARB_shader_texture_lod : enable
+/* MakeUp - composite.fsh
+Render: Bloom and volumetric light
 
-#include "/lib/common.glsl"
+Javier Garduño - GNU Lesser General Public License v3.0
+*/
 
-out vec2 texcoord;
-out vec3 sunScreen; // xy = screen position of the sun, z = 1 when it is in front of the camera
+#define USE_BASIC_SH // Sets the use of a "basic" or "generic" shader for custom dimensions, instead of the default overworld shader. This can solve some rendering issues as the shader is closer to vanilla rendering.
 
-void main() {
-	gl_Position = ftransform();
-	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+#ifdef USE_BASIC_SH
+    #define UNKNOWN_DIM
+#endif
+#define COMPOSITE_SHADER
 
-	// Project the sun once per vertex instead of once per pixel.
-	vec4 clip = gbufferProjection * vec4(normalize(sunPosition) * 100.0, 1.0);
-	vec2 ndc = clip.xy / max(abs(clip.w), 1e-4);
-	sunScreen = vec3(ndc * 0.5 + 0.5, step(1e-4, clip.w));
-}
+#include "/common/composite_vertex.glsl"

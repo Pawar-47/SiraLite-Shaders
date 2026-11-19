@@ -1,21 +1,16 @@
-#version 330 compatibility
+#version 120
+#extension GL_ARB_shader_texture_lod : enable
+/* MakeUp - gbuffers_beaconbeam.fsh
+Render: Beacon beam
 
-uniform sampler2D gtexture;
-uniform float alphaTestRef = 0.1;
+Javier Garduño - GNU Lesser General Public License v3.0
+*/
 
-in vec2 texcoord;
-in vec4 glcolor;
+#define USE_BASIC_SH // Sets the use of a "basic" or "generic" shader for custom dimensions, instead of the default overworld shader. This can solve some rendering issues as the shader is closer to vanilla rendering.
 
-/* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 color;
+#ifdef USE_BASIC_SH
+    #define UNKNOWN_DIM
+#endif
+#define GBUFFER_BEACONBEAM
 
-/* Beacon beams are emissive: texture times colour, no lightmap, no lighting. */
-void main() {
-	vec4 albedo = texture(gtexture, texcoord) * glcolor;
-
-	if (albedo.a < alphaTestRef) {
-		discard;
-	}
-
-	color = albedo;
-}
+#include "/common/solid_blocks_fragment.glsl"

@@ -1,8 +1,14 @@
-#version 330 compatibility
+#version 120
+#extension GL_ARB_shader_texture_lod : enable
+/* MakeUp - shadow.fsh
+Render: Shadowmap
 
-out vec2 texcoord;
+Javier Garduño - GNU Lesser General Public License v3.0
+*/
 
-void main() {
-	gl_Position = ftransform();
-	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-}
+#ifdef USE_BASIC_SH
+    #define UNKNOWN_DIM
+#endif
+#define SHADOW_SHADER
+
+#include "/common/shadow_vertex.glsl"

@@ -1,19 +1,18 @@
-#version 330 compatibility
+#version 120
+#extension GL_ARB_shader_texture_lod : enable
+/* MakeUp - gbuffers_basic.vsh
+Render: Basic elements - lines
 
-out vec2 lmcoord;
-out vec4 glcolor;
-out vec3 viewPos;
-out vec3 normalView;
+Javier Garduño - GNU Lesser General Public License v3.0
+*/
 
-void main() {
-	vec4 viewPosition = gl_ModelViewMatrix * gl_Vertex;
-	gl_Position = gl_ProjectionMatrix * viewPosition;
-	viewPos = viewPosition.xyz;
+#define USE_BASIC_SH // Sets the use of a "basic" or "generic" shader for custom dimensions, instead of the default overworld shader. This can solve some rendering issues as the shader is closer to vanilla rendering.
 
-	lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-	glcolor = gl_Color;
+#ifdef USE_BASIC_SH
+    #define UNKNOWN_DIM
+#endif
+#define GBUFFER_BASIC
+#define NO_SHADOWS
+#define SHADER_LINE
 
-	vec3 n = gl_NormalMatrix * gl_Normal;
-	float len = length(n);
-	normalView = (len > 1e-5) ? (n / len) : vec3(0.0);
-}
+#include "/common/basic_blocks_vertex.glsl"

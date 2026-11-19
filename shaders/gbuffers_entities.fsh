@@ -1,29 +1,16 @@
-#version 330 compatibility
+#version 120
+#extension GL_ARB_shader_texture_lod : enable
+/* MakeUp - gbuffers_entities.fsh
+Render: Droped objects, mobs and things like that
 
-#include "/lib/lighting.glsl"
+Javier Garduño - GNU Lesser General Public License v3.0
+*/
 
-uniform sampler2D gtexture;
-uniform vec4 entityColor;
-uniform float alphaTestRef = 0.1;
+#define USE_BASIC_SH // Sets the use of a "basic" or "generic" shader for custom dimensions, instead of the default overworld shader. This can solve some rendering issues as the shader is closer to vanilla rendering.
 
-in vec2 lmcoord;
-in vec2 texcoord;
-in vec4 glcolor;
-in vec3 viewPos;
-in vec3 normalView;
+#ifdef USE_BASIC_SH
+    #define UNKNOWN_DIM
+#endif
+#define GBUFFER_ENTITIES
 
-/* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 color;
-
-void main() {
-	vec4 albedo = texture(gtexture, texcoord) * glcolor;
-
-	// Damage flash and other entity tints, applied to the albedo as vanilla does.
-	albedo.rgb = mix(albedo.rgb, entityColor.rgb, entityColor.a);
-
-	if (albedo.a < alphaTestRef) {
-		discard;
-	}
-
-	color = vec4(shadeLit(albedo.rgb, lmcoord, viewPos, normalView), albedo.a);
-}
+#include "/common/solid_blocks_fragment.glsl"

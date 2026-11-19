@@ -1,19 +1,14 @@
-#version 330 compatibility
+#version 120
+#extension GL_ARB_shader_texture_lod : enable
+/* MakeUp - shadow.fsh
+Render: Shadowmap
 
-uniform sampler2D gtexture;
-uniform float alphaTestRef = 0.1;
+Javier Garduño - GNU Lesser General Public License v3.0
+*/
 
-in vec2 texcoord;
+#ifdef USE_BASIC_SH
+    #define UNKNOWN_DIM
+#endif
+#define SHADOW_SHADER
 
-/* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 color;
-
-/* Only depth matters here. The discard keeps leaves, plants and grass from
-   casting solid shadows, which is the one thing the shadow pass must do
-   correctly for the result to look right. */
-void main() {
-	if (texture(gtexture, texcoord).a < alphaTestRef) {
-		discard;
-	}
-	color = vec4(1.0);
-}
+#include "/common/shadow_fragment.glsl"

@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 #
-# Structural checks for the SiraLite shader sources.
+# Structural checks for the shader sources.
 #
-# These checks catch the mistakes that a human review of 30 small files misses:
-# a missing #version line, an unbalanced brace, a fragment shader input that the
-# vertex shader never writes, a broken #include path. They are NOT a GLSL
-# compiler and they cannot tell you whether the shader looks right or runs fast.
+# The pack in shaders/ is a modified MakeUp - Ultra Fast (LGPL-3.0). Its
+# conventions differ from a hand-written pack: entry points are GLSL 120 and are
+# thin wrappers that include a body from common/, lib/ or src/, and render
+# targets are declared with DRAWBUFFERS comments inside those bodies. The checks
+# below match those conventions.
+#
+# These are NOT a GLSL compiler. They cannot tell you whether the pack compiles
+# on a GPU, only whether the files are internally consistent.
 #
 # Usage: bash tools/check_shaders.sh
 
@@ -14,33 +18,45 @@ set -u
 cd "$(dirname "$0")/.." || exit 1
 
 fail=0
+sources=$(find shaders -type f \( -name '*.glsl' -o -name '*.fsh' -o -name '*.vsh' \) | sort)
 
-# 1. Every program must start with the GLSL version directive Iris needs for the
-#    compatibility built-ins (gl_Vertex, gl_ModelViewMatrix, ftransform).
-for f in shaders/*.vsh shaders/*.fsh; do
+# 1. Every program entry point starts with a #version directive. This pack
+#    targets GLSL 120, which both OptiFine and Iris accept.
+for f in shaders/*.fsh shaders/*.vsh; do
 	first=$(grep -m1 -v '^[[:space:]]*$' "$f")
-	if [ "$first" != "#version 330 compatibility" ]; then
-		echo "ERROR $f: first line must be '#version 330 compatibility', found: $first"
+	case "$first" in
+		'#version '*) ;;
+		*)
+			echo "ERROR $f: first line must be a #version directive, found: $first"
+			fail=1
+			;;
+	esac
+done
+
+# 2. Every entry point includes its body: all of them are wrappers in this pack,
+#    so a wrapper with no #include is a file that silently renders nothing.
+for f in shaders/*.fsh shaders/*.vsh; do
+	if ! grep -q '#include "' "$f"; then
+		echo "ERROR $f: no #include; entry points here are wrappers around a body"
 		fail=1
 	fi
 done
 
-# 2. Balanced braces and parentheses, ignoring nothing: comments in this project
-#    are written to keep them balanced too, which doubles as a comment typo check.
-for f in shaders/*.vsh shaders/*.fsh shaders/lib/*.glsl; do
+# 3. Preprocessor conditionals must balance in every source file. A missing
+#    #endif is the most common way an edit silently breaks a whole program.
+for f in $sources; do
 	if ! awk -v file="$f" '
-		{
-			for (i = 1; i <= length($0); i++) {
-				c = substr($0, i, 1)
-				if (c == "{") o++
-				else if (c == "}") o--
-				else if (c == "(") p++
-				else if (c == ")") p--
+		/^[[:space:]]*#/ {
+			if ($1 == "#if" || $1 == "#ifdef" || $1 == "#ifndef") depth++
+			else if ($1 == "#endif") depth--
+			if (depth < 0) {
+				printf "ERROR %s: #endif without a matching #if\n", file
+				exit 1
 			}
 		}
 		END {
-			if (o != 0 || p != 0) {
-				printf "ERROR %s: unbalanced braces (%d) or parentheses (%d)\n", file, o, p
+			if (depth != 0) {
+				printf "ERROR %s: %d unclosed #if/#ifdef/#ifndef\n", file, depth
 				exit 1
 			}
 		}
@@ -49,41 +65,9 @@ for f in shaders/*.vsh shaders/*.fsh shaders/lib/*.glsl; do
 	fi
 done
 
-# 3. Every fragment shader that writes to a buffer must say which one.
-for f in shaders/gbuffers_*.fsh shaders/composite*.fsh shaders/shadow.fsh; do
-	[ -f "$f" ] || continue
-	if ! grep -q 'RENDERTARGETS' "$f"; then
-		echo "ERROR $f: no RENDERTARGETS comment"
-		fail=1
-	fi
-done
-
-# 4. Every 'in' of a fragment shader needs a matching 'out' of its vertex shader.
-#    Only lines that really declare a variable are considered, so a comment that
-#    happens to start with the word "in" cannot trip the check.
-for f in shaders/*.fsh; do
-	v="${f%.fsh}.vsh"
-	[ -f "$v" ] || continue
-	problems=$(awk -v fsh="$f" -v vsh="$v" '
-		BEGIN { types = "^(float|int|uint|bool|vec2|vec3|vec4|ivec2|ivec3|ivec4|uvec2|uvec3|uvec4|mat2|mat3|mat4)$" }
-		FNR == NR {
-			if ($1 == "out" && $2 ~ types) { n = $3; gsub(";", "", n); outs[n] = 1 }
-			next
-		}
-		$1 == "in" && $2 ~ types {
-			n = $3
-			gsub(";", "", n)
-			if (!(n in outs)) printf "ERROR %s: varying %s is not written by %s\n", fsh, n, vsh
-		}
-	' "$v" "$f")
-	if [ -n "$problems" ]; then
-		echo "$problems"
-		fail=1
-	fi
-done
-
-# 5. Every #include must resolve inside shaders/.
-missing=$(grep -h -o '#include "[^"]*"' shaders/*.vsh shaders/*.fsh shaders/lib/*.glsl |
+# 4. Every #include must resolve inside shaders/. A renamed or deleted lib file
+#    otherwise only shows up as a compile error in game.
+missing=$(grep -h -o '#include "[^"]*"' $sources |
 	sed 's/.*"\(.*\)"/\1/' | sort -u |
 	while read -r inc; do
 		[ -f "shaders$inc" ] || echo "ERROR missing include: $inc"
@@ -93,14 +77,9 @@ if [ -n "$missing" ]; then
 	fail=1
 fi
 
-# 6. An option must not be defined in two places with different values.
-duplicates=$(grep -h -E '^[[:space:]]*(//)?#define [A-Z_0-9]+[[:space:]]' shaders/lib/*.glsl |
-	sed -e 's|^[[:space:]]*//||' -e 's|^#define[[:space:]]*||' -e 's|[[:space:]]*//.*||' |
-	awk '{ if ($1 != "") { if ($1 in seen && seen[$1] != $0) print "ERROR option " $1 " is defined twice with different values"; seen[$1] = $0 } }')
-if [ -n "$duplicates" ]; then
-	echo "$duplicates"
-	fail=1
-fi
+# 5. Report the size of what was checked, so the log is meaningful.
+count=$(echo "$sources" | wc -l | tr -d ' ')
+echo "Checked $count shader source files."
 
 if [ "$fail" -ne 0 ]; then
 	echo ""

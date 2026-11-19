@@ -1,25 +1,17 @@
-#version 330 compatibility
+#version 120
+#extension GL_ARB_shader_texture_lod : enable
+/* MakeUp - gbuffers_basic.fsh
+Render: Basic elements - lines
 
-#include "/lib/lighting.glsl"
+Javier Garduño - GNU Lesser General Public License v3.0
+*/
 
-uniform float alphaTestRef = 0.1;
+#define USE_BASIC_SH // Sets the use of a "basic" or "generic" shader for custom dimensions, instead of the default overworld shader. This can solve some rendering issues as the shader is closer to vanilla rendering.
 
-in vec2 lmcoord;
-in vec4 glcolor;
-in vec3 viewPos;
-in vec3 normalView;
+#ifdef USE_BASIC_SH
+    #define UNKNOWN_DIM
+#endif
+#define GBUFFER_BASIC
+#define NO_SHADOWS
 
-/* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 color;
-
-/* Untextured geometry: selection outlines, leashes, hitboxes and similar.
-   One lightmap fetch, arithmetic only. */
-void main() {
-	vec4 albedo = glcolor;
-
-	if (albedo.a < alphaTestRef) {
-		discard;
-	}
-
-	color = vec4(albedo.rgb * lightmapLight(lmcoord), albedo.a);
-}
+#include "/common/basic_blocks_fragment.glsl"

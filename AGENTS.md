@@ -1,62 +1,45 @@
 # AGENTS.md
 
-This repository is an Iris shader pack for Minecraft Java Edition 1.21.5, written
-in GLSL `#version 330 compatibility`. All shader content is in `shaders/`.
-The Gradle setup is for development and packaging only.
+This repository ships a **modified version of MakeUp - Ultra Fast v9.6** in
+`shaders/`. That directory is **LGPL-3.0-or-later** and is someone else's code.
+Everything else here - build files, checks, docs - is MIT.
 
-## Architecture rules
+Read [NOTICE.md](NOTICE.md) before changing anything under `shaders/`.
 
-- The pack is **forward rendered**. Terrain, entities and translucent geometry are
-  lit in the gbuffers programs and written to `colortex0` only. Do not add a
-  normals, specular or other extra render target: extra targets cost memory
-  bandwidth, which is the scarcest resource on the target hardware.
-- There is exactly **one post processing pass** (`composite`). There is no
-  `deferred` pass - removing it saved a full-screen copy. Do not add
-  `composite1+` or `final` passes without measuring the cost first.
-- Common code lives in `shaders/lib/`. `common.glsl` holds uniforms and pure
-  helpers, `lighting.glsl` the lightmap and lighting model, `shadow.glsl` the
-  shadow lookup (compiled only when `SHADOW_QUALITY > 0`), `waving.glsl` the
-  per-vertex vegetation and water motion, `settings.glsl` every option.
-- Block ids live in `shaders/block.properties` and arrive as `mc_Entity.x` in the
-  chunk vertex shaders. Ids 10001 to 10003 are taken; keep `lib/waving.glsl` and
-  `block.properties` in sync, and gate new behaviour on an exact id range so
-  unmapped blocks (id 0 or a registry id) are never affected.
-- Never declare a uniform in an individual program if a lib already declares it.
-  Duplicate declarations are a compile error.
-- A uniform declared in a `lib/` file must be one that Iris binds for every
-  program that includes it.
+## Rules for `shaders/`
 
-## Options
+- **Do not rewrite upstream logic.** The value of this repository is an unmodified
+  pack with retuned defaults. Changing shader code means diverging from a pack its
+  author maintains, and it must then be documented as a change in `NOTICE.md`.
+- **Allowed changes are narrow:** option defaults in `shaders/lib/config.glsl`,
+  profiles and `program.<name>.enabled` switches in `shaders/shaders.properties`.
+  That is the whole tuning surface, and `Ref/OPTIMIZED.md` records every value that
+  was already changed.
+- **Keep the licence and notice accurate.** If you modify anything under
+  `shaders/`, add it to the dated list in `NOTICE.md`. The LGPL requires it, and
+  `LICENSE-LGPL-3.0.txt` must keep shipping inside the built zip (it does, via the
+  `LICENSE*` include in `build.gradle`).
+- **Keep the unmodified original intact** in `Ref/shaders/` so differences stay
+  diff-able. Never edit `Ref/shaders/`; copy changes into `shaders/` only.
 
-Every user option is a macro in `shaders/lib/settings.glsl`, nowhere else. Iris
-requires an option to be defined identically in every file that uses it, so a
-single home is the only safe approach.
+## Checks
 
-When you add or rename an option, also update:
+`bash tools/check_shaders.sh` - structural only: `#version` on entry points, entry
+points include a body, preprocessor conditionals balance, includes resolve. It is
+not a GLSL compiler and cannot tell you whether the pack compiles on a GPU, looks
+right or runs fast. Do not claim otherwise.
 
-- `shaders/shaders.properties` (`screen`, `sliders`, and all three profiles).
-- `shaders/lang/en_us.lang` (label and tooltip).
+`gradlew assemble` builds `build/releases/*.zip`; CI also publishes it as a
+release on every push.
 
-Never use a `float` option inside `#if`. Use an `int` option for `#if`, and a
-boolean (`#ifdef`) for on/off. GLSL's `#if` is specified for integers only.
+## Honesty rules
 
-## Performance rules
+- No framerate numbers, no "tested on <GPU>" claim, unless someone actually
+  measured it. Nothing in this repository has been benchmarked.
+- Do not describe a config change as an optimisation without saying whether it was
+  verified by reading code or by measurement.
 
-- Cheap by default: a pixel should cost one texture fetch and one lightmap fetch
-  unless a feature the user switched on says otherwise.
-- No `pow`, `exp`, `log` or noise in a per-pixel path on the default preset.
-  Multiplies, `dot`, `mix`, `step` and one `sqrt` are acceptable.
-- No loops and no per-pixel branching on the default preset. Shadow and optional
-  effect code is compiled out by option macros instead.
-- Any new effect that cannot be switched off is paid for by every user of the
-  default preset. Give it an option, or do not add it.
+## The legacy pack
 
-## Verify before claiming
-
-- `bash tools/check_shaders.sh` - structural checks that need no GPU.
-- `gradlew assemble` - produces `build/releases/siralite-shaders-<version>-shaderpack.zip`.
-- `gradlew runShaderClient` - development client with the pack applied.
-
-Nothing in CI or in those checks can prove a shader looks right or runs fast.
-Only a real client on real hardware can. Do not write FPS figures, frame times or
-"tested on <GPU>" claims into the documentation without measuring them.
+`legacy/siralite-shaders/` is the previous MIT pack. It is not built, not
+packaged, and not scanned by the checks. Leave it alone unless specifically asked.

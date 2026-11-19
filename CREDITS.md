@@ -1,49 +1,54 @@
 # Credits and attribution
 
-## Where this project comes from
+This repository is **two things under two licences**. See [NOTICE.md](NOTICE.md)
+for the exact split; this file is about who made what.
 
-SiraLite Shaders started from `ascpixi/minecraft-shader-template`, a minimal
-Iris shader development template for Minecraft 1.21.5.
+## The shader pack in `shaders/`
 
-Used from that template:
+**MakeUp - Ultra Fast v9.6** by **Javier Garduño (KDXavier)**,
+**GNU Lesser General Public License v3.0**.
 
-- The repository layout (`shaders/` at the root, one file pair per program).
-- The file names of the gbuffers programs, and the convention of one
-  `#version 330 compatibility` shader pair per program.
-- The Gradle / Fabric Loom build and development run setup (`build.gradle`,
-  `settings.gradle`, the wrapper, `.vscode/`), with only the project identity
-  changed. The template itself notes that it is based on the official
-  [ShaderLABS Base-330](https://github.com/shaderLABS/Base-330) template.
+- https://modrinth.com/shader/makeup-ultra-fast-shaders
+- https://github.com/javiergcim/MakeUpUltraFast
+- https://www.planetminecraft.com/mod/makeup-ultra-fast-shader/
+- https://www.curseforge.com/minecraft/customization/makeup-ultra-fast-shader
 
-Not used from that template:
+It is included as a **modified version** for low-end hardware, as the LGPL allows
+and asks: the licence file ships with it (`LICENSE-LGPL-3.0.txt`), and the list of
+changes with its date is in [NOTICE.md](NOTICE.md). The unmodified copy this was
+taken from is in `Ref/`, and `Ref/OPTIMIZED.md` records why each value changed.
 
-- All the GLSL in this pack. The template's shaders were pass-through
-  implementations (texture times vertex colour times the vanilla lightmap, plus
-  a copy pass for `composite` and `deferred`). SiraLite's lighting model,
-  sky, water, shadow sampling, colour grading, fog, presets and option system
-  were written for this project.
-- `shaders.properties`, `shaders/lang/en_us.lang`, `pack.mcmeta`, the
-  documentation and the CI workflow did not exist in the template.
+Everything that makes this pack look the way it does - the lighting model, water,
+sky, clouds, fog, the TAA and reflection code, the per-dimension programs - is
+Javier's work, not mine.
 
-## Licence of the starting template
+## The previous pack in `legacy/siralite-shaders/`
 
-At the time this project was cloned, the upstream template repository contained
-no `LICENSE` file and GitHub reported no licence for it. There was therefore no
-explicit licence granting or restricting reuse of its contents. What this
-project took from it is listed above and is limited to project scaffolding and
-build configuration; the shader code is original to this project.
+The SiraLite Shaders 1.x pack: an independently written, MIT-licensed pack built
+on `ascpixi/minecraft-shader-template` (itself based on the ShaderLABS Base-330
+template). Kept for reference; it is no longer the shipped pack. Its history is
+in git and its builds are still on the releases page as v1.2.0 to v1.7.1.
 
-If you are the author of the template and want the scaffolding attributed or
-licensed differently, open an issue on this repository.
+## Build tooling
 
-## This project's licence
+The Gradle/Loom development setup comes from `ascpixi/minecraft-shader-template`
+and is unchanged apart from the project identity. The release workflow, the
+structural check script, the documentation in `docs/` and the tuning itself were
+written for this repository, under MIT.
 
-The contents of this repository are released under the MIT licence. See
-[LICENSE](LICENSE).
+## Reference material studied
+
+Recorded so the reasoning is auditable and nothing is silently absorbed:
+
+- **Complementary Shaders - Unbound** (custom licence) - downloaded and read
+  through its public source repository. Notes: [docs/RESEARCH.md](docs/RESEARCH.md).
+- **MakeUp - Ultra Fast** (LGPL-3.0) - the pack now shipped, and the subject of
+  [docs/MAKEUP-TUNING.md](docs/MAKEUP-TUNING.md).
+- **Mellow** (MIT) - feature list and design notes only.
 
 ## Third party
 
-- **Iris** and **Sodium** are not bundled here. They are pulled in by the Gradle
-  build only as development runtime dependencies, so that
-  `gradlew runShaderClient` can start a client with the pack applied.
-- **Minecraft** is not bundled here and is not redistributed by this project.
+- **Iris** and **Sodium** are not bundled. The Gradle build pulls them in as
+  development runtime dependencies only, so `gradlew runShaderClient` can start a
+  client with the pack applied.
+- **Minecraft** is not bundled and is not redistributed by this project.

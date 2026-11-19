@@ -1,32 +1,17 @@
-#version 330 compatibility
+#version 120
+#extension GL_ARB_shader_texture_lod : enable
+/* MakeUp - gbuffers_skybasic.fsh
+Render: Sky
 
-#include "/lib/common.glsl"
-
-uniform int renderStage;
-
-in vec4 glcolor;
-
-/* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 color;
-
-vec3 screenToView(vec3 screenPos) {
-	vec4 ndcPos = vec4(screenPos, 1.0) * 2.0 - 1.0;
-	vec4 tmp = gbufferProjectionInverse * ndcPos;
-	return tmp.xyz / tmp.w;
-}
-
-/*
-    The sky is one analytic gradient: no texture, no noise, no atmosphere
-    simulation. Colours come from vanilla's own skyColor and fogColor, so biome
-    tint, rain, thunder and the day cycle all keep working for free, and there is
-    nothing in the sky that can look like a shape which is not there.
+Javier Garduño - GNU Lesser General Public License v3.0
 */
-void main() {
-	if (renderStage == MC_RENDER_STAGE_STARS) {
-		color = glcolor;
-		return;
-	}
 
-	vec3 dir = normalize(screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0)));
-	color = vec4(skyGradient(dir), 1.0);
-}
+#define USE_BASIC_SH // Sets the use of a "basic" or "generic" shader for custom dimensions, instead of the default overworld shader. This can solve some rendering issues as the shader is closer to vanilla rendering.
+
+#ifdef USE_BASIC_SH
+    #define UNKNOWN_DIM
+#endif
+#define GBUFFER_SKYBASIC
+#define NO_SHADOWS
+
+#include "/common/skybasic_fragment.glsl"
