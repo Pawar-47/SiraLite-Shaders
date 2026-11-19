@@ -25,8 +25,10 @@ void main() {
 	if (depth < 1.0) {
 		float dist = linearizeDepth(depth);
 
-		float start = far * 0.45 / FOG_DENSITY;
-		float end = far * 0.98 / FOG_DENSITY;
+		// Rain pulls the fog in.
+		float fogScale = FOG_DENSITY * (1.0 + 0.6 * rainStrength);
+		float start = far * 0.45 / fogScale;
+		float end = far * 0.98 / fogScale;
 		float fog = clamp((dist - start) / max(end - start, 1.0), 0.0, 1.0);
 
 		float horizon = clamp(horizonAmount() * SUNSET_STRENGTH, 0.0, 1.0);
@@ -57,6 +59,10 @@ void main() {
 #endif
 	}
 
+	// Rain: cooler, flatter light over the whole scene. Two multiplies and a
+	// mix, no extra fetch.
+	scene = mix(scene, vec3(luma(scene)) * vec3(0.94, 0.97, 1.02), rainStrength * 0.25);
+
 #ifdef BLOOM
 	{
 		// Four widely spaced taps of the already drawn scene. Cheap, wide and
@@ -79,5 +85,11 @@ void main() {
 	}
 #endif
 
-	color = vec4(clamp(scene, 0.0, 1.0), 1.0);
+	/* Interleaved gradient dither before the 8 bit write. Fog and sky
+	   gradients band badly without it, and this costs two fracts and two
+	   multiplies. */
+	float dither = fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715)) * 52.9829189);
+	dither = fract(dither);
+
+	color = vec4(clamp(scene + (dither - 0.5) / 255.0, 0.0, 1.0), 1.0);
 }

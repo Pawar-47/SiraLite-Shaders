@@ -19,10 +19,11 @@ project skeleton. See [CREDITS.md](CREDITS.md) for exactly what came from where.
 | Question | Answer |
 | --- | --- |
 | Is this a real, complete shader pack? | Yes. Every program the pack ships is implemented; there are no stubs and no placeholder code. |
-| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, and uploads `siralite-shaders-1.0.0-shaderpack.zip` as an artifact. The current commit is green. See [Verification](#verification). |
+| Does it package into a valid shader zip? | Yes. CI runs the structural source checks and `gradlew assemble` on every push, and uploads `siralite-shaders-1.1.0-shaderpack.zip` as an artifact. The current commit is green. See [Verification](#verification). |
 | Has it been compiled and run in Minecraft? | **No.** It was written in an environment with no GPU and no Minecraft. Packaging is verified; GPU compilation and appearance are not. |
+| Why is the release zip only about 24 KB? | Because the pack is pure GLSL - about 1,300 lines of source and not one image. See [Why the release is so small](#why-the-release-is-so-small). |
 | Are there FPS numbers? | **No, and there will not be any invented ones.** Everything below labelled as an optimisation is a code-level property you can check by reading the file, not a measurement. |
-| Is it tested on your Core i3? | Not yet. That test is the next step, and it is yours to run. |
+| Is it tested on your Core i3? | Not yet. That test is the next step, and it is yours to run. Start with [Squeezing FPS](#squeezing-fps-on-a-real-low-end-pc). |
 
 Treat this as a complete, reviewable first release that needs one round of
 in-game testing, not as a pack with a benchmark history.
@@ -141,7 +142,7 @@ Maximum FPS. No shadow pass at all, no extra fetches, no extra passes.
 | | |
 | --- | --- |
 | Shadows | Off. The shadow pass is not even rendered. |
-| Post processing | None. Exactly one scene fetch and one depth fetch. |
+| Post processing | One pass: one scene fetch, one depth fetch. Switch `POST_PROCESSING` off to remove that pass entirely. |
 | Water | Tinted lighting plus a cheap analytic sky reflection at 15%. No waves. |
 | Sky / fog / grade | On - these are arithmetic only and are the pack's look. |
 | Pixel cost on terrain | 1 texture fetch, 1 lightmap fetch, arithmetic |
@@ -180,8 +181,10 @@ Settings** with a label and tooltip from `shaders/lang/en_us.lang`.
 
 | Option | Default | What it does |
 | --- | --- | --- |
+| `POST_PROCESSING` | on | The whole post pass: fog, grade, underwater tint. Off removes an entire full-screen pass |
 | `SHADOW_QUALITY` | `0` | 0 = off (no shadow pass at all), 1 = hard shadows (one tap), 2 = soft shadows (4 taps) |
 | `shadowMapResolution` | `1024` | 512, 1024 or 2048. Iris constant; lower is faster and blurrier |
+| `shadowDistance` | `96` | Blocks the shadow pass covers. Lower re-renders much less geometry |
 | `SHADOW_STRENGTH` | `0.75` | How much direct light the shadows remove |
 | `EXPOSURE` | `1.0` | Overall brightness multiplier, after lighting |
 | `SATURATION` | `1.08` | Colour saturation around each pixel's brightness |
@@ -197,7 +200,56 @@ Settings** with a label and tooltip from `shaders/lang/en_us.lang`.
 | `SSAO` | off | Depth-only contact shadows |
 
 `shaders.properties` also turns off vanilla's underwater overlay and vanilla's
-vignette overlay, because the pack draws its own version of both.
+vignette overlay, because the pack draws its own version of both, and it stops
+translucent geometry (water, glass, ice) from being drawn into the shadow map.
+
+Note that turning `POST_PROCESSING` off also removes the underwater tint, since
+that tint is drawn in the post pass.
+
+## Squeezing FPS on a real low-end PC
+
+On an old Core i3 with integrated graphics, the shader pack is usually not the
+biggest cost - the render distance, the simulation distance and the number of
+chunks the CPU has to build are. These levers will move your framerate further
+than any line of GLSL, and none of them need a better GPU.
+
+1. Load **Ultra Performance**. If you are still under ~40 FPS, turn
+   `POST_PROCESSING` off: that removes a full-screen pass outright.
+2. **Render distance 6-8 chunks.** Every chunk is geometry the CPU builds and the
+   GPU rasterises. This is the single biggest lever on this hardware.
+3. **Simulation distance 5.** Mobs and random ticks are CPU work, and the i3 is
+   where you are bottlenecked.
+4. **Graphics: Fast.** Clouds off (or Fast), particles Minimal, entity shadows
+   off, view bobbing off, mipmap level 2-4.
+5. **Smooth lighting: ON.** It is baked into the vertex data, it costs almost
+   nothing, and it is what the pack's tinted lightmap is built on. Turning it off
+   makes the world look flat without gaining much.
+6. **Sodium settings:** chunk builder threads 2, leave render distance culling on.
+7. **Allocate 2-3 GB of RAM**, not more. With 8 GB total, Windows and the game
+   share it; over-allocating causes swapping, which is far worse than a small heap.
+8. **Use a 64-bit Java 21 runtime.**
+9. **Vsync off, fullscreen at native resolution** (a scaled window costs an extra
+   copy per frame), Windows power plan on "High performance", and close the
+   browser - on 8 GB that alone is often 10-20% of your frame time.
+
+Only the first item is specific to this pack. The rest is standard Minecraft
+configuration, and none of it is measured on your machine - it is the set of
+levers that matter, not a benchmark.
+
+## Why the release is so small
+
+The packaged zip is about 24 KB. That is not a missing feature; it is what this
+much shader code weighs.
+
+- The pack is about 1,300 lines of GLSL across 18 program pairs and 4 libraries,
+  with no textures, no noise images, no skybox art and no cloud sprites.
+- Text compresses extremely well, so a couple of thousand lines become about
+  24 KB in a zip.
+- Shader packs that ship 1-10 MB are almost always carrying images. Those images
+  cost VRAM and texture bandwidth on an integrated GPU, which is exactly the
+  resource this pack is trying to protect. A missing texture is a feature here.
+- For comparison, the whole `colortex` budget of this pack is one 8-bit colour
+  target. There is nothing else to ship.
 
 ## Performance: what was actually optimised
 
@@ -213,7 +265,13 @@ measured FPS claim.
   itself, and it was a full-screen read plus a full-screen write, every frame.
 - All post processing happens in the single `composite` pass: one scene fetch, one
   depth fetch, then arithmetic.
+- `composite` can be switched off completely with `POST_PROCESSING`, so the very
+  weakest machine can shed the last full-screen pass and still keep the improved
+  terrain, sky and water.
 - No `final` pass, no `composite1..15`.
+- The shadow pass renders no translucent geometry, so water, glass and ice never
+  cost shadow-pass fill rate, and `shadowDistance` (96 blocks by default) keeps
+  the re-rendered geometry short.
 
 **Fewer texture fetches**
 
@@ -360,9 +418,11 @@ CI (`.github/workflows/build.yml`) runs on every push:
 2. `./gradlew assemble`, and the produced `build/releases/*.zip` is uploaded as an
    artifact (the step fails the build if no zip is produced).
 
-Both steps pass on the current commit. That proves the sources are structurally
-sound and that the pack packages correctly - you can download the release zip from
-the Actions run instead of building it yourself. It does **not** prove the shaders compile on a GPU or that they look
+Both steps pass on the current commit (`BUILD SUCCESSFUL in 58s`). That proves the
+sources are structurally sound and that the pack packages correctly - you can
+download the release zip from the Actions run instead of building it yourself.
+The last recorded CI run produced `siralite-shaders-1.0.0-shaderpack.zip` at
+24,271 bytes, wrapped by GitHub in a 16,452-byte artifact download. It does **not** prove the shaders compile on a GPU or that they look
 right; only a real client can. Check the console for `[Iris]` compile errors after
 applying the pack.
 

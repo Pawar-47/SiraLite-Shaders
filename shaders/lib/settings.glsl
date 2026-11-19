@@ -22,6 +22,7 @@
 
 #define SHADOW_QUALITY 0 // [0 1 2] Shadow quality: 0 = off (no shadow pass), 1 = hard shadows, 2 = soft shadows (4 taps)
 const int shadowMapResolution = 1024; // [512 1024 2048] Shadow map resolution. 1024 is the recommended low-end value, 512 the cheapest
+const float shadowDistance = 96.0; // [64 96 128 160] Distance in blocks the shadow pass covers. Lower is much cheaper
 #define SHADOW_STRENGTH 0.75 // [0.25 0.5 0.75 1.0] How strongly shadows darken the world
 
 /* ------------------------------------------------------------------ *
@@ -49,6 +50,16 @@ const int shadowMapResolution = 1024; // [512 1024 2048] Shadow map resolution. 
 #define WATER_REFLECTIONS // Sky colour reflected on water surfaces, weighted by view angle
 #define WATER_REFLECTION_STRENGTH 0.15 // [0.0 0.15 0.3 0.5 0.7] Reflection strength
 //#define WATER_WAVES // Animated shimmer on the reflected direction (adds 4 sin/cos per water pixel)
+
+/* ------------------------------------------------------------------ *
+ *  PERFORMANCE
+ *  The one switch that can remove a whole full-screen pass. With this
+ *  off, composite.fsh is not run at all: no fog, no grade, no underwater
+ *  tint, and the world is shown exactly as the gbuffers programs wrote
+ *  it. Terrain lighting, sky and water still look better than vanilla.
+ * ------------------------------------------------------------------ */
+
+#define POST_PROCESSING // Full-screen post pass: distance fog, colour grade, underwater tint
 
 /* ------------------------------------------------------------------ *
  *  POST PROCESSING

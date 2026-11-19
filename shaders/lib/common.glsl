@@ -25,6 +25,7 @@ uniform vec3 fogColor;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform float frameTimeCounter;
+uniform float rainStrength;
 uniform float near;
 uniform float far;
 
@@ -54,6 +55,7 @@ float horizonAmount() {
    colour. Two dot products, no fetches, no noise. */
 vec3 skyGradient(vec3 dir) {
 	vec3 up = normalize(upPosition);
+	vec3 sunDir = normalize(sunPosition);
 	float day = daylightAmount();
 	float horizon = clamp(horizonAmount() * SUNSET_STRENGTH, 0.0, 1.0);
 
@@ -62,11 +64,17 @@ vec3 skyGradient(vec3 dir) {
 
 	vec3 col = mix(fogColor, skyColor, t);
 
-	// Warm band hugging the horizon at sunrise and sunset.
-	col = mix(col, fogColor * vec3(1.18, 0.94, 0.80), horizon * 0.5 * (1.0 - t));
+	/* Warm band at sunrise and sunset, weighted by azimuth so it gathers on
+	   the sun's side of the sky. Without the azimuth term the whole horizon
+	   turns orange, which is the giveaway of a cheap sky. */
+	vec2 flatDir = dir.xz;
+	vec2 flatSun = sunDir.xz;
+	float azim = dot(flatDir, flatSun) *
+	             inversesqrt(max(dot(flatDir, flatDir) * dot(flatSun, flatSun), 1e-4));
+	col = mix(col, fogColor * vec3(1.24, 0.92, 0.76),
+	          horizon * 0.6 * (1.0 - t) * (0.2 + 0.8 * clamp(azim, 0.0, 1.0)));
 
 	// Sun glow, cos^8 through three multiplies.
-	vec3 sunDir = normalize(sunPosition);
 	float sun = max(dot(dir, sunDir), 0.0);
 	sun *= sun;
 	sun *= sun;

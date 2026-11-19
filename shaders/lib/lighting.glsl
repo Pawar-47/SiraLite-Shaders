@@ -46,12 +46,18 @@ vec3 lightmapLight(vec2 lmcoord) {
 	return raw * tint;
 }
 
-/* Sun and sky sides of a face. Exactly neutral (vec3(1.0)) when normalView is
-   zero, which is what programs without usable normals pass in. */
+/* Sun by day, moon by night, on top of vanilla's own face shading. Exactly
+   neutral (vec3(1.0)) when normalView is zero, which is what programs without
+   usable normals pass in. */
 vec3 sunFacing(vec3 normalView) {
 	float day = daylightAmount();
 	float d = dot(normalView, normalize(sunPosition));
-	return vec3(1.0 + (max(d, 0.0) * 0.18 - max(-d, 0.0) * 0.07) * day);
+	float m = dot(normalView, normalize(moonPosition));
+
+	float sunTerm = (max(d, 0.0) * 0.18 - max(-d, 0.0) * 0.07) * day;
+	float moonTerm = max(m, 0.0) * 0.10 * (1.0 - day);
+
+	return vec3(1.0 + sunTerm + moonTerm);
 }
 
 /* The lighting every opaque, lit program uses. */
@@ -62,7 +68,14 @@ vec3 shadeLit(vec3 albedo, vec2 lmcoord, vec3 viewPos, vec3 normalView) {
 #if SHADOW_QUALITY > 0
 	// Only where sky light reaches, so interiors and caves are left alone.
 	float skyMask = smoothstep(0.05, 0.6, lmcoord.y);
-	light *= mix(1.0, getShadow(viewPos), SHADOW_STRENGTH * skyMask);
+	float shadow = getShadow(viewPos);
+
+	// Fade shadows out at the edge of the shadow frustum. A hard line where
+	// shadows stop looks worse than having no shadows at all.
+	float fade = smoothstep(shadowDistance * 0.82, shadowDistance, length(viewPos));
+	shadow = mix(shadow, 1.0, fade);
+
+	light *= mix(1.0, shadow, SHADOW_STRENGTH * skyMask);
 #endif
 
 	return albedo * light;
