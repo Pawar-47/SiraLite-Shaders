@@ -65,8 +65,8 @@ void main() {
 
 #ifdef SUN_GLARE
 	/* Warm glare around the sun's screen position, computed in the vertex stage.
-	   Restricted to clean sky, so it never paints a halo on a mountain that is
-	   in front of the sun. */
+	   Restricted to clean sky, so a mountain that happens to sit over the sun
+	   never grows a halo. */
 	vec2 aspect = vec2(viewWidth / max(viewHeight, 1.0), 1.0);
 	float glareDist = length((texcoord - sunScreen.xy) * aspect);
 	float glare = 1.0 / (1.0 + glareDist * glareDist * 90.0);

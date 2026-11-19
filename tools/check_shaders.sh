@@ -59,15 +59,18 @@ for f in shaders/gbuffers_*.fsh shaders/composite*.fsh shaders/shadow.fsh; do
 done
 
 # 4. Every 'in' of a fragment shader needs a matching 'out' of its vertex shader.
+#    Only lines that really declare a variable are considered, so a comment that
+#    happens to start with the word "in" cannot trip the check.
 for f in shaders/*.fsh; do
 	v="${f%.fsh}.vsh"
 	[ -f "$v" ] || continue
 	problems=$(awk -v fsh="$f" -v vsh="$v" '
+		BEGIN { types = "^(float|int|uint|bool|vec2|vec3|vec4|ivec2|ivec3|ivec4|uvec2|uvec3|uvec4|mat2|mat3|mat4)$" }
 		FNR == NR {
-			if ($1 == "out") { n = $3; gsub(";", "", n); outs[n] = 1 }
+			if ($1 == "out" && $2 ~ types) { n = $3; gsub(";", "", n); outs[n] = 1 }
 			next
 		}
-		$1 == "in" {
+		$1 == "in" && $2 ~ types {
 			n = $3
 			gsub(";", "", n)
 			if (!(n in outs)) printf "ERROR %s: varying %s is not written by %s\n", fsh, n, vsh
